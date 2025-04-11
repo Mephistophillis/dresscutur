@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Hero from './components/Hero';
 import ContactInfo from './components/ContactInfo';
 import Map from './components/Map';

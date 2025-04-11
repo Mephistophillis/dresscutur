@@ -2,7 +2,6 @@
 
 import { NextPage } from 'next';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 
 // Import components
 import Hero from './components/Hero';

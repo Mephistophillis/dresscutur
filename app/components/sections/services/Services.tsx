@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Service = {
@@ -49,6 +48,7 @@ export default function Services() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    const ref = sectionRef.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -59,12 +59,12 @@ export default function Services() {
       { threshold: 0.3 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    if (ref) {
+      observer.observe(ref);
     }
 
     return () => {
-      if (sectionRef.current) {
+      if (ref) {
         observer.disconnect();
       }
     };
@@ -169,7 +169,7 @@ export default function Services() {
                     <div className="aspect-video relative bg-gray-200">
                       {/* Заглушка для изображения, в реальном проекте здесь будет Image компонент */}
                       <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                        Фото услуги "{service.title}"
+                        Фото услуги &quot;{service.title}&quot;
                       </div>
                     </div>
                     <div className="p-6 sm:p-8">

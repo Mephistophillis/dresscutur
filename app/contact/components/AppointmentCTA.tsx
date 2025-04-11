@@ -71,7 +71,7 @@ const generateTimeSlots = (selectedDate: string): TimeSlot[] => {
   
   // Generate slots every 30 minutes
   for (let hour = startHour; hour <= endHour; hour++) {
-    for (let minute of [0, 30]) {
+    for (const minute of [0, 30]) {
       // Skip the last slot if it's the closing hour and minutes are 30
       if (hour === endHour && minute === 30) continue;
       
@@ -271,19 +271,6 @@ export default function AppointmentCTA() {
       transition: {
         staggerChildren: 0.1,
         delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-        damping: 15,
       },
     },
   };

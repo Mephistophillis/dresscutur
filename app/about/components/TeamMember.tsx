@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 interface SocialLink {
   platform: string;
   url: string;
-  icon: JSX.Element;
+  icon: ReactNode;
 }
 
 interface TeamMemberProps {

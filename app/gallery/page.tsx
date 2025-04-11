@@ -1,6 +1,5 @@
 'use client';
 
-import { Metadata } from 'next';
 import Hero from './components/Hero';
 import GalleryGrid from './components/GalleryGrid';
 import { useState } from 'react';

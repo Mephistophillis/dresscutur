@@ -192,6 +192,7 @@ export default function ContactForm() {
         setSubmitSuccess(false);
       }, 5000);
     } catch (error) {
+      console.log(error)
       setSubmitError('Произошла ошибка при отправке формы. Пожалуйста, попробуйте еще раз.');
     } finally {
       setIsSubmitting(false);

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 
 type Review = {
   id: number;
@@ -137,7 +136,7 @@ export default function Reviews() {
                         {review.date}
                       </div>
                     </div>
-                    <p className="text-dark/80 italic">"{review.text}"</p>
+                    <p className="text-dark/80 italic">&quot;{review.text}&quot;</p>
                   </div>
                 </div>
               ))}

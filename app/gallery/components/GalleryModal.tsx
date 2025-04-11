@@ -77,22 +77,6 @@ const GalleryModal: React.FC<GalleryModalProps> = ({ isOpen, item, onClose }) =>
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  // Navigate with arrow keys
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen || !item) return;
-      
-      if (e.key === 'ArrowLeft') {
-        navigatePrevious();
-      } else if (e.key === 'ArrowRight') {
-        navigateNext();
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, item, currentImageIndex]);
-
   // Get all images (main + related)
   const getAllImages = useCallback(() => {
     if (!item) return [];
@@ -121,6 +105,22 @@ const GalleryModal: React.FC<GalleryModalProps> = ({ isOpen, item, onClose }) =>
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     setIsZoomed(false);
   }, [getAllImages]);
+
+  // Navigate with arrow keys
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen || !item) return;
+      
+      if (e.key === 'ArrowLeft') {
+        navigatePrevious();
+      } else if (e.key === 'ArrowRight') {
+        navigateNext();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, item, currentImageIndex, navigateNext, navigatePrevious]);
 
   // Handle touch events for swipe
   const handleTouchStart = (e: React.TouchEvent) => {

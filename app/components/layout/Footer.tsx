@@ -22,6 +22,7 @@ export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    const ref = footerRef.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsInView(entry.isIntersecting);
@@ -29,12 +30,12 @@ export default function Footer() {
       { threshold: 0.1 }
     );
 
-    if (footerRef.current) {
-      observer.observe(footerRef.current);
+    if (ref) {
+      observer.observe(ref);
     }
 
     return () => {
-      if (footerRef.current) {
+      if (ref) {
         observer.disconnect();
       }
     };

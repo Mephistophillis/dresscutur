@@ -242,7 +242,7 @@ export default function TestimonialsSection() {
                           </div>
                           <StarRating rating={filteredTestimonials[currentIndex].rating} />
                         </div>
-                        <p className="text-gray-700 italic">"{filteredTestimonials[currentIndex].text}"</p>
+                        <p className="text-gray-700 italic">&quot;{filteredTestimonials[currentIndex].text}&quot;</p>
                       </div>
                     </div>
                   </div>

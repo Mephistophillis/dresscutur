@@ -30,6 +30,13 @@ const FabricDetail: React.FC<FabricDetailProps> = ({ fabric, onClose }) => {
     return colors[sum % colors.length];
   };
 
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
   useEffect(() => {
     // Lock body scroll when modal is open
     document.body.style.overflow = 'hidden';
@@ -48,6 +55,7 @@ const FabricDetail: React.FC<FabricDetailProps> = ({ fabric, onClose }) => {
       document.body.style.overflow = 'auto';
       window.removeEventListener('keydown', handleEscape);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleImageError = (index: number) => {
@@ -55,13 +63,6 @@ const FabricDetail: React.FC<FabricDetailProps> = ({ fabric, onClose }) => {
       ...prev,
       [index]: true
     }));
-  };
-
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      onClose();
-    }, 300);
   };
 
   const nextImage = () => {

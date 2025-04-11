@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Testimonial = {
@@ -86,6 +85,7 @@ export default function Testimonials() {
   }, [activeIndex, isAutoplay, isInView]);
 
   useEffect(() => {
+    const ref = sectionRef.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsInView(entry.isIntersecting);
@@ -93,12 +93,12 @@ export default function Testimonials() {
       { threshold: 0.3 }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    if (ref) {
+      observer.observe(ref);
     }
 
     return () => {
-      if (sectionRef.current) {
+      if (ref) {
         observer.disconnect();
       }
     };
@@ -245,7 +245,7 @@ export default function Testimonials() {
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.5, duration: 0.4 }}
                           >
-                            "{testimonial.text}"
+                            &quot;{testimonial.text}&quot;
                           </motion.p>
                         </div>
                       </div>

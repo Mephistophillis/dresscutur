@@ -1,7 +1,5 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import Hero from './components/sections/hero/Hero';
 import Services from './components/sections/services/Services';
 import Testimonials from './components/sections/testimonials/Testimonials';

@@ -141,7 +141,7 @@ export default function StorySection() {
           {/* Quote */}
           <motion.div variants={itemVariants} className="mt-24 text-center max-w-4xl mx-auto px-4">
             <blockquote className="text-xl md:text-2xl font-serif text-dark italic mb-4">
-              "Наша миссия — не просто шить одежду, а помогать людям выражать свою индивидуальность через безупречный стиль, созданный специально для них."
+              Наша миссия — не просто шить одежду, а помогать людям выражать свою индивидуальность через безупречный стиль, созданный специально для них.
             </blockquote>
             <cite className="text-base md:text-lg text-gray-600 not-italic">— Основатель ателье DressCutur</cite>
           </motion.div>
