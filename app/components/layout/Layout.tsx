@@ -4,6 +4,7 @@ import { useState, createContext, useContext } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import ContactModal from './ContactModal';
+import { usePathname } from 'next/navigation';
 
 type LayoutContextType = {
   openContactModal: () => void;
@@ -25,6 +26,10 @@ type LayoutProps = {
 
 export default function Layout({ children }: LayoutProps) {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
+  const pathname = usePathname()
+
+  if (pathname.startsWith('/admin')) return children
 
   const openContactModal = () => {
     setIsContactModalOpen(true);

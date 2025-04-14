@@ -1,0 +1,184 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Модель для аутентификации пользователей админки
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          Role      @default(EDITOR)
+  isActive      Boolean   @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+// Модель для услуг
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String?
+  image       String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Модель для тканей
+model Fabric {
+  id              String           @id @default(cuid())
+  name            String
+  description     String
+  image           String?
+  category        String
+  purpose         String[]
+  colors          String[]
+  price           Float?
+  properties      String[]
+  isActive        Boolean          @default(true)
+  order           Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  details         FabricDetails?
+  gallery         FabricGallery[]
+  recommendations String[]
+}
+
+model FabricDetails {
+  id          String   @id @default(cuid())
+  fabricId    String   @unique
+  fabric      Fabric   @relation(fields: [fabricId], references: [id], onDelete: Cascade)
+  composition String?
+  width       Float?
+  weight      Float?
+  care        String[]
+  origin      String?
+  description String?
+}
+
+model FabricGallery {
+  id       String @id @default(cuid())
+  fabricId String
+  fabric   Fabric @relation(fields: [fabricId], references: [id], onDelete: Cascade)
+  url      String
+  alt      String?
+}
+
+// Модель для работ в галерее
+model GalleryItem {
+  id            String                 @id @default(cuid())
+  src           String
+  alt           String
+  category      String
+  description   String
+  isNew         Boolean                @default(false)
+  order         Int                    @default(0)
+  isActive      Boolean                @default(true)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  details       GalleryItemDetails?
+  relatedImages GalleryRelatedImage[]
+}
+
+model GalleryItemDetails {
+  id           String      @id @default(cuid())
+  galleryItemId String      @unique
+  galleryItem  GalleryItem @relation(fields: [galleryItemId], references: [id], onDelete: Cascade)
+  client       String?
+  materials    String[]
+  date         String?
+  process      String?
+}
+
+model GalleryRelatedImage {
+  id            String      @id @default(cuid())
+  galleryItemId String
+  galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id], onDelete: Cascade)
+  src           String
+  alt           String?
+}
+
+// Модель для отзывов
+model Testimonial {
+  id         String   @id @default(cuid())
+  name       String
+  position   String?
+  avatar     String?
+  text       String
+  rating     Int
+  date       String?
+  category   String?
+  isVerified Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// Модель для цен
+model Price {
+  id          String   @id @default(cuid())
+  service     String
+  price       String
+  description String?
+  category    String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Модель для FAQ
+model FAQ {
+  id         String   @id @default(cuid())
+  category   String
+  title      String?
+  question   String
+  answer     String
+  helpful    Int      @default(0)
+  notHelpful Int      @default(0)
+  isActive   Boolean  @default(true)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// Модель для контактных заявок
+model Contact {
+  id             String        @id @default(cuid())
+  name           String
+  email          String
+  phone          String?
+  subject        String
+  message        String
+  status         ContactStatus @default(NEW)
+  assignedTo     String?
+  notes          String?
+  fileAttachment String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+} 

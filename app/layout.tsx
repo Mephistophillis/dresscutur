@@ -44,20 +44,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="ru" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans text-dark bg-light">
-        <Layout>
-          <a href="#main-content" className="skip-link">
-            Перейти к основному содержимому
-          </a>
-          {children}
-        </Layout>
+      <Layout>
+        <a href="#main-content" className="skip-link">
+          Перейти к основному содержимому
+        </a>
+        {children}
+      </Layout>
       </body>
     </html>
   );
