@@ -219,7 +219,7 @@ export default function Header() {
         {isMobileMenuOpen && (
           <motion.nav
             id="mobile-menu"
-            className="fixed inset-0 bg-white z-40 md:hidden flex flex-col"
+            className="static h-[100dvh] inset-0 bg-white z-40 md:hidden flex flex-col"
             role="navigation"
             aria-label="Мобильная навигация"
             variants={mobileMenuVariants}
