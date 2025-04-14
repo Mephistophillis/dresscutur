@@ -58,7 +58,7 @@ export function LoadingOverlay() {
   );
 }
 
-export function TableSkeleton({ rows = 5, cols = 4 }) {
+export function TableSkeleton({ rows = 5 }) {
   return (
     <div className="w-full animate-pulse">
       <div className="h-10 bg-gray-200 rounded-t mb-2"></div>

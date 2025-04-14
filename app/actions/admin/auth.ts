@@ -3,7 +3,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { prisma } from '~/app/lib/db';
 
 const loginSchema = z.object({
   email: z.string().email('Некорректный email'),
@@ -30,7 +29,7 @@ export async function login(email: string, password: string): Promise<LoginResul
     // Для демонстрации используем мок-данные
     if (email === 'admin@example.com' && password === 'password') {
       // Устанавливаем cookie сессии
-      cookies().set('admin-session', 'dummy-session-token', {
+      (await cookies()).set('admin-session', 'dummy-session-token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 7, // 1 неделя
@@ -54,14 +53,14 @@ export async function login(email: string, password: string): Promise<LoginResul
 }
 
 export async function logout() {
-  cookies().delete('admin-session');
+  (await cookies()).delete('admin-session');
   redirect('/admin/auth');
 }
 
 export async function getCurrentUser() {
   // В реальном приложении здесь будет проверка сессии и получение данных пользователя
   // Для демонстрации возвращаем мок-данные
-  const sessionToken = cookies().get('admin-session')?.value;
+  const sessionToken = (await cookies()).get('admin-session')?.value;
   
   if (!sessionToken) {
     return null;

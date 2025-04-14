@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from './button';
 
 // Таблица
-interface TableProps extends React.HTMLAttributes<HTMLTableElement> {}
+type TableProps = React.HTMLAttributes<HTMLTableElement>
 
 export function Table({ className = '', ...props }: TableProps) {
   return (
@@ -16,7 +16,7 @@ export function Table({ className = '', ...props }: TableProps) {
 }
 
 // Заголовок таблицы
-interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+type TableHeaderProps = React.HTMLAttributes<HTMLTableSectionElement>
 
 export function TableHeader({ className = '', ...props }: TableHeaderProps) {
   return (
@@ -25,14 +25,14 @@ export function TableHeader({ className = '', ...props }: TableHeaderProps) {
 }
 
 // Тело таблицы
-interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>
 
 export function TableBody({ className = '', ...props }: TableBodyProps) {
   return <tbody className={`[&_tr:last-child]:border-0 ${className}`} {...props} />;
 }
 
 // Строка таблицы
-interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {}
+type TableRowProps = React.HTMLAttributes<HTMLTableRowElement>
 
 export function TableRow({ className = '', ...props }: TableRowProps) {
   return (
@@ -44,7 +44,7 @@ export function TableRow({ className = '', ...props }: TableRowProps) {
 }
 
 // Ячейка заголовка
-interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {}
+type TableHeadProps = React.ThHTMLAttributes<HTMLTableCellElement>
 
 export function TableHead({ className = '', ...props }: TableHeadProps) {
   return (
@@ -56,7 +56,7 @@ export function TableHead({ className = '', ...props }: TableHeadProps) {
 }
 
 // Ячейка данных
-interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {}
+type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement>
 
 export function TableCell({ className = '', ...props }: TableCellProps) {
   return (
@@ -68,7 +68,7 @@ export function TableCell({ className = '', ...props }: TableCellProps) {
 }
 
 // Компонент для пагинации
-interface TablePaginationProps {
+type TablePaginationProps = {
   total: number;
   pageSize: number;
   currentPage: number;
@@ -88,7 +88,7 @@ export function TablePagination({
     const items = [];
     const maxPagesToShow = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+    const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
     
     if (endPage - startPage + 1 < maxPagesToShow) {
       startPage = Math.max(1, endPage - maxPagesToShow + 1);

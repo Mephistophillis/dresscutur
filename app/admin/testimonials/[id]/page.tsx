@@ -53,11 +53,13 @@ function getTestimonialById(id: string) {
 }
 
 // Интерфейс для свойств компонента
-interface TestimonialEditPageProps {
-  params: {
-    id: string;
-  };
-}
+type Params = Promise<{ 
+  id: string;
+}>
+
+type TestimonialEditPageProps = {
+  params: Params;
+};
 
 // Компонент формы редактирования отзыва
 function TestimonialEditForm({ id }: { id: string }) {
@@ -240,7 +242,8 @@ function TestimonialEditForm({ id }: { id: string }) {
 }
 
 // Основной компонент страницы
-export default function TestimonialEditPage({ params }: TestimonialEditPageProps) {
+export default async function TestimonialEditPage({ params }: TestimonialEditPageProps) {
+  const { id } = await params;
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
@@ -248,12 +251,12 @@ export default function TestimonialEditPage({ params }: TestimonialEditPageProps
           <span className="mr-1">←</span> Назад к отзывам
         </Link>
         <h1 className="text-2xl font-bold">
-          {params.id === 'new' ? 'Добавить отзыв' : 'Редактировать отзыв'}
+          {id === 'new' ? 'Добавить отзыв' : 'Редактировать отзыв'}
         </h1>
       </div>
       
       <Suspense fallback={<LoadingPage />}>
-        <TestimonialEditForm id={params.id} />
+        <TestimonialEditForm id={id} />
       </Suspense>
     </div>
   );

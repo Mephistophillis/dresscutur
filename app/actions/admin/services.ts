@@ -1,20 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
-
-// Define the Service schema
-const serviceSchema = z.object({
-  name: z.string().min(1, 'Название обязательно'),
-  description: z.string().min(10, 'Описание должно содержать минимум 10 символов'),
-  category: z.string().min(1, 'Категория обязательна'),
-  price: z.number().positive().nullable().optional(),
-  duration: z.string().nullable().optional(),
-  image: z.string().optional(),
-  features: z.array(z.string()).min(1, 'Укажите хотя бы одну особенность'),
-  isActive: z.boolean().default(true),
-  order: z.number().int().default(0),
-});
 
 // Define the Service interface
 interface Service {

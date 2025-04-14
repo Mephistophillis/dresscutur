@@ -198,10 +198,10 @@ export default function TestimonialsPage() {
       </div>
 
       <Alert variant="info" title="Совет">
-        Отзывы со статусом "Проверен" показываются на сайте. Для изменения порядка отображения используйте поле "Порядок".
+        Отзывы со статусом &quot;Проверен&quot; показываются на сайте. Для изменения порядка отображения используйте поле &quot;Порядок&quot;.
       </Alert>
       
-      <Suspense fallback={<TableSkeleton rows={5} cols={7} />}>
+      <Suspense fallback={<TableSkeleton rows={5} />}>
         <TestimonialsTable />
       </Suspense>
     </div>

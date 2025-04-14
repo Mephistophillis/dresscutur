@@ -258,12 +258,12 @@ export default function PricesPage() {
       </div>
 
       <Alert variant="info" title="Совет">
-        Используйте поле "Порядок" для изменения последовательности отображения цен на сайте. Меньшие значения показываются первыми.
+        Используйте поле `&quot;Порядок`&quot; для изменения последовательности отображения цен на сайте. Меньшие значения показываются первыми.
       </Alert>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Suspense fallback={<TableSkeleton rows={5} cols={7} />}>
+          <Suspense fallback={<TableSkeleton rows={5} />}>
             <PricesTable />
           </Suspense>
         </div>

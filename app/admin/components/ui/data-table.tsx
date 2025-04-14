@@ -9,7 +9,7 @@ interface Column<T> {
   sortable?: boolean;
 }
 
-interface DataTableProps<T> {
+interface DataTableProps<T extends Record<string, React.ReactNode | undefined>> {
   columns: Column<T>[];
   data: T[];
   pageSize?: number;
@@ -20,7 +20,7 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
 }
 
-export function DataTable<T extends Record<string, any>>({
+export function DataTable<T extends Record<string, React.ReactNode | undefined>>({
   columns,
   data,
   pageSize = 10,
@@ -65,13 +65,16 @@ export function DataTable<T extends Record<string, any>>({
   const sortedData = [...filteredData].sort((a, b) => {
     if (!sortField) return 0;
     
-    const aValue = a[sortField];
-    const bValue = b[sortField];
+    const aValue = a[sortField] ?? '';
+    const bValue = b[sortField] ?? '';
     
-    if (aValue === bValue) return 0;
-    
-    const comparison = aValue < bValue ? -1 : 1;
-    return sortDirection === 'asc' ? comparison : -comparison;
+    if (aValue < bValue) {
+      return sortDirection === 'asc' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortDirection === 'asc' ? 1 : -1;
+    }
+    return 0;
   });
 
   // Вычисляем пагинацию

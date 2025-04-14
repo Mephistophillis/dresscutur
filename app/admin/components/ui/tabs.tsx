@@ -26,8 +26,9 @@ export function Tabs({ children, defaultTab, className = '' }: TabsProps) {
       if (
         React.isValidElement(child) && 
         child.type && 
-        // @ts-ignore - Используем displayName для определения типа компонента
+        // @ts-expect-error - Используем displayName для определения типа компонента
         child.type.displayName === 'Tab' && 
+        // @ts-expect-error - Проверяем наличие value в props
         'value' in child.props
       ) {
         return (child.props as TabComponentProps).value;

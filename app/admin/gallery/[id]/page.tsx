@@ -5,11 +5,13 @@ import { Button } from '../../components/ui/button';
 import { LoadingPage } from '../../components/ui/loading';
 import { getGalleryItemById } from '~/app/actions/admin/gallery';
 
-interface GalleryEditPageProps {
-  params: {
-    id: string;
-  };
-}
+type Params = Promise<{   
+  id: string;
+}>
+
+type GalleryEditPageProps = {
+  params: Params;
+};
 
 async function GalleryEditForm({ id }: { id: string }) {
   // Если id === "new", это создание нового элемента
@@ -235,7 +237,8 @@ async function GalleryEditForm({ id }: { id: string }) {
   );
 }
 
-export default function GalleryEditPage({ params }: GalleryEditPageProps) {
+export default async function GalleryEditPage({ params }: GalleryEditPageProps) {
+  const { id } = await params;
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
@@ -243,12 +246,12 @@ export default function GalleryEditPage({ params }: GalleryEditPageProps) {
           <span className="mr-1">←</span> Назад к галерее
         </Link>
         <h1 className="text-2xl font-bold">
-          {params.id === 'new' ? 'Добавить работу' : 'Редактировать работу'}
+          {id === 'new' ? 'Добавить работу' : 'Редактировать работу'}
         </h1>
       </div>
       
       <Suspense fallback={<LoadingPage />}>
-        <GalleryEditForm id={params.id} />
+        <GalleryEditForm id={id} />
       </Suspense>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { ButtonHTMLAttributes } from 'react';
 import Link from 'next/link';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
@@ -105,11 +105,9 @@ export function ButtonLink({
   leftIcon,
   rightIcon,
   isLoading = false,
-  ...props
 }: ButtonLinkProps) {
   const variantClasses = getVariantClasses(variant);
   const sizeClasses = getSizeClasses(size);
-  const stateClasses = disabled ? 'opacity-60 cursor-not-allowed' : '';
   
   const linkClasses = `inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${disabled ? 'opacity-50 pointer-events-none' : ''} ${variantClasses} ${sizeClasses} ${className}`;
   

@@ -1,7 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
 
 // Define the Fabric interface
 interface Fabric {
@@ -26,43 +25,6 @@ interface Fabric {
     description: string | null;
   };
 }
-
-// Схема данных для валидации ткани
-const fabricSchema = z.object({
-  name: z.string().min(1, 'Название обязательно'),
-  description: z.string().min(10, 'Описание должно содержать минимум 10 символов'),
-  category: z.enum(['natural', 'synthetic', 'mixed', 'lining', 'silk', 'wool', 'linen']),
-  purpose: z.array(z.string()).min(1, 'Укажите хотя бы одно применение'),
-  colors: z.array(z.string()).min(1, 'Укажите хотя бы один цвет'),
-  price: z.number().positive().nullable().optional(),
-  image: z.string().optional(),
-  properties: z.array(z.string()).default([]),
-  recommendations: z.array(z.string()).default([]),
-  isActive: z.boolean().default(true),
-  order: z.number().int().default(0),
-});
-
-// Схема данных для детальной информации о ткани
-const fabricDetailsSchema = z.object({
-  composition: z.string().nullable().optional(),
-  width: z.number().positive().nullable().optional(),
-  weight: z.number().positive().nullable().optional(),
-  care: z.array(z.string()).default([]),
-  origin: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
-});
-
-// Схема данных для изображений ткани
-const fabricGallerySchema = z.object({
-  url: z.string().min(1, 'URL обязателен'),
-  alt: z.string().optional(),
-});
-
-// Полная схема данных для создания/обновления ткани
-const fabricWithDetailsSchema = fabricSchema.extend({
-  details: fabricDetailsSchema.optional(),
-  gallery: z.array(fabricGallerySchema).optional(),
-});
 
 // Mock data for fabrics
 const mockFabrics: Fabric[] = [

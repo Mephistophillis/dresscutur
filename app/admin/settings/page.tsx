@@ -127,6 +127,7 @@ export default function SettingsPage() {
   const handleSettingsChange = (
     section: keyof typeof settings,
     field: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: string | boolean | number | Record<string, any>
   ) => {
     setSettings({

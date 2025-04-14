@@ -1,7 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
 import { getCurrentUser } from './auth';
 
 // Define the GalleryItem interface

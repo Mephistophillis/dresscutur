@@ -1,20 +1,8 @@
 import React, { Suspense } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '../components/ui/button';
-import { 
-  Table, 
-  TableHeader, 
-  TableRow, 
-  TableHead, 
-  TableBody, 
-  TableCell, 
-  TableEmpty,
-  TablePagination
-} from '../components/ui/table';
-import { TableActions } from '../components/ui/table-actions';
-import { EmptyState } from '../components/ui/empty-state';
-import { LoadingPage, TableSkeleton } from '../components/ui/loading';
+
+import { TableSkeleton } from '../components/ui/loading';
 import { Alert } from '../components/ui/alert';
 import { getGalleryItems } from '~/app/actions/admin/gallery';
 import { GalleryTable } from './table';
@@ -32,10 +20,10 @@ export default async function GalleryPage() {
       </div>
 
       <Alert variant="info" title="Совет">
-        Для изменения порядка отображения работ используйте поле "Порядок". Работы с меньшим значением отображаются первыми.
+        Для изменения порядка отображения работ используйте поле &quot;Порядок&quot;. Работы с меньшим значением отображаются первыми.
       </Alert>
 
-      <Suspense fallback={<TableSkeleton rows={5} cols={6} />}>
+      <Suspense fallback={<TableSkeleton rows={5} />}>
         <GalleryTable galleryItems={galleryItems} />
       </Suspense>
     </div>

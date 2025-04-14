@@ -209,7 +209,7 @@ export default function FaqsPage() {
         Используйте категории для группировки вопросов. Наиболее полезные вопросы рекомендуется размещать в начале списка.
       </Alert>
       
-      <Suspense fallback={<TableSkeleton rows={5} cols={6} />}>
+      <Suspense fallback={<TableSkeleton rows={5} />}>
         <FaqsTable />
       </Suspense>
     </div>

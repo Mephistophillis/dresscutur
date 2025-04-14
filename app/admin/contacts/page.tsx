@@ -13,7 +13,7 @@ import {
 import { TableSkeleton } from '../components/ui/loading';
 import { EmptyState } from '../components/ui/empty-state';
 import { TableActions } from '../components/ui/table-actions';
-import { Badge } from '../components/ui/badge';
+import { Badge, BadgeProps } from '../components/ui/badge';
 import { Alert } from '../components/ui/alert';
 
 // Временные данные для демонстрации
@@ -177,15 +177,15 @@ function ContactsTable() {
                   <span className="text-sm">{formatDate(contact.date)}</span>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={statusInfo.color as any}>
+                  <Badge variant={statusInfo.color as BadgeProps['variant']}>
                     {statusInfo.text}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <TableActions 
                     onView={() => {}}
-                    onChangeStatus={() => {}}
-                    onArchive={contact.status !== 'archived' ? () => {} : undefined}
+                    onEdit={() => {}}
+                    onDelete={contact.status !== 'archived' ? () => {} : undefined}
                   />
                 </TableCell>
               </TableRow>
@@ -219,7 +219,7 @@ export default function ContactsPage() {
         Новые заявки требуют рассмотрения. Не забудьте ответить клиенту в течение 24 часов.
       </Alert>
       
-      <Suspense fallback={<TableSkeleton rows={5} cols={5} />}>
+      <Suspense fallback={<TableSkeleton rows={5} />}>
         <ContactsTable />
       </Suspense>
     </div>

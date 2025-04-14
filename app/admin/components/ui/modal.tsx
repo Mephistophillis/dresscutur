@@ -1,5 +1,5 @@
 import React, { Fragment, useRef } from 'react';
-import { Button } from './button';
+import { Button, ButtonProps } from './button';
 
 interface ModalProps {
   isOpen: boolean;
@@ -122,7 +122,7 @@ export function ConfirmModal({
             {cancelText}
           </Button>
           <Button
-            variant={confirmVariant}
+            variant={confirmVariant as ButtonProps['variant']}
             onClick={onConfirm}
             disabled={isLoading}
           >
