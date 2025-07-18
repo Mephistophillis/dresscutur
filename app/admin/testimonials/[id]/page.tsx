@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Button } from '../../components/ui/button';
 import { LoadingPage } from '../../components/ui/loading';
+import ImageUpload from '~/app/admin/components/ui/image-upload';
 
 // Временные данные для демонстрации
 const mockTestimonials = [
@@ -109,15 +110,25 @@ function TestimonialEditForm({ id }: { id: string }) {
             </div>
             
             <div>
-              <label htmlFor="avatar" className="block text-sm font-medium text-gray-700 mb-1">
-                URL аватара
-              </label>
-              <input
-                type="text"
-                id="avatar"
-                name="avatar"
-                defaultValue={testimonial?.avatar || ''}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              <ImageUpload
+                id="testimonial-avatar"
+                label="Аватар"
+                initialImage={testimonial?.avatar || ''}
+                onImageUpload={(url) => {
+                  const avatarInput = document.createElement('input');
+                  avatarInput.type = 'hidden';
+                  avatarInput.name = 'avatar';
+                  avatarInput.value = url;
+                  
+                  const existingInput = document.querySelector('input[name="avatar"]') as HTMLInputElement;
+                  if (existingInput) {
+                    existingInput.value = url;
+                  } else {
+                    document.getElementById('testimonial-form')?.appendChild(avatarInput);
+                  }
+                }}
+                category="testimonials"
+                maxSizeMB={2}
               />
             </div>
             
@@ -232,7 +243,7 @@ function TestimonialEditForm({ id }: { id: string }) {
           <Link href="/admin/testimonials">
             <Button variant="outline">Отмена</Button>
           </Link>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="default">
             {isNewItem ? 'Создать' : 'Сохранить'}
           </Button>
         </div>

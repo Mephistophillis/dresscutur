@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { 
   Table, 
   TableHeader, 
@@ -13,13 +14,16 @@ import {
 } from '../components/ui/table';
 import { TableActions } from '../components/ui/table-actions';
 import { EmptyState } from '../components/ui/empty-state';
-import type { GalleryItem } from '~/app/actions/admin/gallery';
-
+import { type GalleryItem } from '~/app/lib/definitions';
+import { deleteGalleryItem, toggleGalleryItemStatus, toggleGalleryItemNew } from '~/app/actions/admin/gallery-prisma';
 
 // Компонент для загрузки и отображения галереи
 export function GalleryTable({ galleryItems }: { galleryItems: GalleryItem[] }) {
+  const router = useRouter();
+  const [items, setItems] = useState<GalleryItem[]>(galleryItems);
+  const [error, setError] = useState<string | null>(null);
     
-    if (!galleryItems || galleryItems.length === 0) {
+    if (!items || items.length === 0) {
       return (
         <EmptyState
           title="Галерея пуста"
@@ -36,9 +40,63 @@ export function GalleryTable({ galleryItems }: { galleryItems: GalleryItem[] }) 
         />
       );
     }
+
+    const handleView = (id: string) => {
+      window.open(`/gallery/${id}`, '_blank');
+    };
+
+    const handleEdit = (id: string) => {
+      router.push(`/admin/gallery/${id}`);
+    };
+
+    const handleDelete = async (id: string) => {
+      if (confirm('Вы уверены, что хотите удалить эту работу?')) {
+        try {
+          await deleteGalleryItem(id);
+          setItems(prevItems => prevItems.filter(item => item.id !== id));
+        } catch (err) {
+          console.error('Failed to delete gallery item:', err);
+          setError('Ошибка при удалении элемента галереи');
+        }
+      }
+    };
+
+    const handleToggleActive = async (id: string, currentActive: boolean) => {
+      try {
+        await toggleGalleryItemStatus(id);
+        setItems(prevItems => 
+          prevItems.map(item => 
+            item.id === id ? { ...item, isActive: !currentActive } : item
+          )
+        );
+      } catch (err) {
+        console.error('Failed to toggle gallery item status:', err);
+        setError('Ошибка при изменении статуса');
+      }
+    };
+
+    const handleToggleFeatured = async (id: string, currentFeatured: boolean) => {
+      try {
+        await toggleGalleryItemNew(id);
+        setItems(prevItems => 
+          prevItems.map(item => 
+            item.id === id ? { ...item, isFeatured: !currentFeatured } : item
+          )
+        );
+      } catch (err) {
+        console.error('Failed to toggle gallery item featured status:', err);
+        setError('Ошибка при изменении статуса');
+      }
+    };
   
     return (
       <div>
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
+        
         <Table>
           <TableHeader>
             <TableRow>
@@ -51,13 +109,13 @@ export function GalleryTable({ galleryItems }: { galleryItems: GalleryItem[] }) 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {galleryItems.map((item: GalleryItem) => (
+            {items.map((item: GalleryItem) => (
               <TableRow key={item.id}>
                 <TableCell>
                   <div className="relative w-16 h-16 rounded overflow-hidden">
                     <Image
-                      src={item.imageSrc}
-                      alt={item.title}
+                      src={item.src || item.imageSrc || ''}
+                      alt={item.title || item.alt || ''}
                       fill
                       className="object-cover"
                     />
@@ -71,25 +129,35 @@ export function GalleryTable({ galleryItems }: { galleryItems: GalleryItem[] }) 
                 </TableCell>
                 <TableCell>{item.category}</TableCell>
                 <TableCell>
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    item.isActive 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {item.isActive ? 'Активно' : 'Неактивно'}
-                  </span>
-                  {item.isFeatured && (
-                    <span className="ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">
-                      Избранное
-                    </span>
-                  )}
+                  <div className="flex flex-col gap-1">
+                    <button 
+                      onClick={() => handleToggleActive(item.id, item.isActive)}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        item.isActive 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {item.isActive ? 'Активно' : 'Неактивно'}
+                    </button>
+                    <button
+                      onClick={() => handleToggleFeatured(item.id, item.isFeatured || false)}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        item.isFeatured
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {item.isFeatured ? 'Избранное' : 'Обычное'}
+                    </button>
+                  </div>
                 </TableCell>
                 <TableCell>{item.order}</TableCell>
                 <TableCell className="text-right">
                   <TableActions
-                    onView={() => {}}
-                    onEdit={() => {}}
-                    onDelete={() => {}}
+                    onView={() => handleView(item.id)}
+                    onEdit={() => handleEdit(item.id)}
+                    onDelete={() => handleDelete(item.id)}
                   />
                 </TableCell>
               </TableRow>
@@ -99,9 +167,9 @@ export function GalleryTable({ galleryItems }: { galleryItems: GalleryItem[] }) 
   
         <div className="mt-4">
           <TablePagination
-            total={galleryItems.length}
+            totalItems={items.length}
             currentPage={1}
-            pageSize={10}
+            itemsPerPage={10}
             onPageChange={() => {}}
           />
         </div>

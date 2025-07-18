@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
+import { CONTACTS } from '~/app/constants/contacts';
 
 // Contact data
 const contactData = [
@@ -16,25 +17,12 @@ const contactData = [
       </svg>
     ),
     title: 'Основной адрес',
-    content: 'г. Москва, ул. Тверская, д. 15, офис 204',
+    content: CONTACTS.address,
     copyable: true,
-    link: 'https://maps.google.com/...', // Replace with actual Google Maps link
+    link: CONTACTS.links.address,
     linkLabel: 'Открыть на карте',
   },
-  {
-    id: 'address-2',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    title: 'Второе ателье',
-    content: 'г. Москва, ул. Арбат, д. 24, 2 этаж',
-    copyable: true,
-    link: 'https://maps.google.com/...', // Replace with actual Google Maps link
-    linkLabel: 'Открыть на карте',
-  },
+  // У нас только одно ателье, поэтому убираем второй адрес
   {
     id: 'phone-1',
     icon: (
@@ -43,24 +31,12 @@ const contactData = [
       </svg>
     ),
     title: 'Телефон',
-    content: '+7 (495) 123-45-67',
+    content: CONTACTS.phone,
     copyable: true,
-    link: 'tel:+74951234567',
+    link: CONTACTS.links.phone,
     linkLabel: 'Позвонить',
   },
-  {
-    id: 'phone-2',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-      </svg>
-    ),
-    title: 'Доп. телефон',
-    content: '+7 (495) 987-65-43',
-    copyable: true,
-    link: 'tel:+74959876543',
-    linkLabel: 'Позвонить',
-  },
+  // У нас один основной телефон, поэтому убираем дополнительный
   {
     id: 'email',
     icon: (
@@ -69,9 +45,9 @@ const contactData = [
       </svg>
     ),
     title: 'Email',
-    content: 'info@dresscutur.ru',
+    content: CONTACTS.email,
     copyable: true,
-    link: 'mailto:info@dresscutur.ru',
+    link: CONTACTS.links.email,
     linkLabel: 'Написать',
   },
   {
@@ -85,8 +61,8 @@ const contactData = [
     content: 'WhatsApp, Telegram',
     copyable: false,
     messageLinks: [
-      { name: 'WhatsApp', url: 'https://wa.me/74951234567' },
-      { name: 'Telegram', url: 'https://t.me/dresscutur' },
+      { name: 'WhatsApp', url: CONTACTS.social.whatsapp },
+      { name: 'Telegram', url: CONTACTS.social.telegram },
     ],
   }
 ];

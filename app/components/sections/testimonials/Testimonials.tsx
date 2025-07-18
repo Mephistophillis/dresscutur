@@ -2,63 +2,17 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Testimonial as TestimonialType } from '~/app/lib/definitions';
 
-type Testimonial = {
-  id: number;
-  name: string;
-  position: string;
-  avatar: string;
-  text: string;
-  rating: number;
-};
+interface TestimonialsProps {
+  testimonials: TestimonialType[];
+}
 
-const testimonialsData: Testimonial[] = [
-  {
-    id: 1,
-    name: 'Анна Сергеева',
-    position: 'Постоянный клиент',
-    avatar: '/images/testimonials/avatar1.jpg',
-    text: 'Я в восторге от качества пошива и индивидуального подхода! Мое платье идеально село по фигуре и получило множество комплиментов на мероприятии. Обязательно вернусь за новыми нарядами.',
-    rating: 5
-  },
-  {
-    id: 2,
-    name: 'Екатерина Иванова',
-    position: 'Невеста',
-    avatar: '/images/testimonials/avatar2.jpg',
-    text: 'Свадебное платье моей мечты стало реальностью благодаря профессионализму мастеров ателье. Все детали были продуманы, а качество исполнения превзошло мои ожидания. Спасибо за создание этого шедевра!',
-    rating: 5
-  },
-  {
-    id: 3,
-    name: 'Михаил Петров',
-    position: 'Бизнесмен',
-    avatar: '/images/testimonials/avatar3.jpg',
-    text: 'Заказывал пошив делового костюма. Результат превзошел ожидания - идеальная посадка, отличные материалы и внимание к деталям. Теперь все костюмы буду шить только здесь.',
-    rating: 4
-  },
-  {
-    id: 4,
-    name: 'Ольга Смирнова',
-    position: 'Дизайнер интерьера',
-    avatar: '/images/testimonials/avatar4.jpg',
-    text: 'Заказывала шторы и текстиль для проекта. Все было выполнено точно в срок и с превосходным качеством. Клиенты остались довольны, буду рекомендовать ателье своим заказчикам.',
-    rating: 5
-  },
-  {
-    id: 5,
-    name: 'Дмитрий Козлов',
-    position: 'Фотограф',
-    avatar: '/images/testimonials/avatar5.jpg',
-    text: 'Обратился за ремонтом винтажного пиджака. Мастер не только отреставрировал вещь, но и дал рекомендации по уходу. Очень ценю такой профессиональный подход.',
-    rating: 4
-  }
-];
-
-export default function Testimonials() {
+export default function Testimonials({ testimonials }: TestimonialsProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAutoplay, setIsAutoplay] = useState(true);
   const [isInView, setIsInView] = useState(false);
+  const [isLoading] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   
@@ -71,10 +25,10 @@ export default function Testimonials() {
   useEffect(() => {
     resetTimeout();
     
-    if (isAutoplay && isInView) {
+    if (isAutoplay && isInView && testimonials.length > 0) {
       timeoutRef.current = setTimeout(() => {
         setActiveIndex((prevIndex) => 
-          prevIndex === testimonialsData.length - 1 ? 0 : prevIndex + 1
+          prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
         );
       }, 5000);
     }
@@ -82,7 +36,7 @@ export default function Testimonials() {
     return () => {
       resetTimeout();
     };
-  }, [activeIndex, isAutoplay, isInView]);
+  }, [activeIndex, isAutoplay, isInView, testimonials.length]);
 
   useEffect(() => {
     const ref = sectionRef.current;
@@ -105,16 +59,18 @@ export default function Testimonials() {
   }, []);
 
   const handleNext = () => {
+    if (testimonials.length === 0) return;
     setIsAutoplay(false);
     setActiveIndex((prevIndex) => 
-      prevIndex === testimonialsData.length - 1 ? 0 : prevIndex + 1
+      prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
     );
   };
 
   const handlePrev = () => {
+    if (testimonials.length === 0) return;
     setIsAutoplay(false);
     setActiveIndex((prevIndex) => 
-      prevIndex === 0 ? testimonialsData.length - 1 : prevIndex - 1
+      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
     );
   };
 
@@ -157,6 +113,47 @@ export default function Testimonials() {
     }
   };
 
+  // Отображение заглушки при загрузке
+  if (isLoading) {
+    return (
+      <section className="py-16 sm:py-20 md:py-24 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded-md w-1/3 mx-auto mb-4"></div>
+              <div className="h-1 bg-primary w-20 mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded-md w-2/3 mx-auto"></div>
+            </div>
+          </div>
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-light rounded-2xl shadow-lg p-8 md:p-12 animate-pulse">
+              <div className="flex flex-col items-center">
+                <div className="w-20 h-20 rounded-full bg-gray-200 mb-4"></div>
+                <div className="h-6 bg-gray-200 rounded-md w-40 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded-md w-32 mb-4"></div>
+                <div className="flex space-x-1 mb-6">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="w-5 h-5 rounded-full bg-gray-200"></div>
+                  ))}
+                </div>
+                <div className="space-y-2 w-full max-w-2xl">
+                  <div className="h-4 bg-gray-200 rounded-md w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded-md w-5/6"></div>
+                  <div className="h-4 bg-gray-200 rounded-md w-4/6"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Проверка на отсутствие отзывов
+  if (testimonials.length === 0) {
+    return null;
+  }
+
   return (
     <section id="testimonials" className="py-16 sm:py-20 md:py-24 bg-white" ref={sectionRef}>
       <div className="container mx-auto px-4">
@@ -195,7 +192,7 @@ export default function Testimonials() {
 
             <div className="relative">
               <AnimatePresence mode="wait">
-                {testimonialsData.map((testimonial, index) => (
+                {testimonials.map((testimonial, index) => (
                   index === activeIndex && (
                     <motion.div
                       key={testimonial.id}
@@ -211,10 +208,17 @@ export default function Testimonials() {
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ duration: 0.5 }}
                         >
-                          {/* Заглушка для аватара, в реальном проекте здесь будет Image компонент */}
-                          <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-                            <span className="text-gray-400 text-xs">Фото</span>
-                          </div>
+                          {testimonial.avatar ? (
+                            <img 
+                              src={testimonial.avatar} 
+                              alt={testimonial.name} 
+                              className="object-cover w-full h-full"
+                            />
+                          ) : (
+                            <div className="bg-gray-200 w-full h-full flex items-center justify-center">
+                              <span className="text-gray-400 text-xs">Фото</span>
+                            </div>
+                          )}
                         </motion.div>
                         
                         <div className="text-center">
@@ -226,14 +230,16 @@ export default function Testimonials() {
                           >
                             {testimonial.name}
                           </motion.h3>
-                          <motion.p 
-                            className="text-primary text-sm mb-3"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3, duration: 0.4 }}
-                          >
-                            {testimonial.position}
-                          </motion.p>
+                          {testimonial.position && (
+                            <motion.p 
+                              className="text-primary text-sm mb-3"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.3, duration: 0.4 }}
+                            >
+                              {testimonial.position}
+                            </motion.p>
+                          )}
                           
                           <div className="flex justify-center mb-6">
                             {renderStars(testimonial.rating)}
@@ -253,51 +259,42 @@ export default function Testimonials() {
                   )
                 ))}
               </AnimatePresence>
+            </div>
+
+            {/* Элементы управления */}
+            <div className="flex justify-between items-center mt-8">
+              <button 
+                onClick={handlePrev}
+                className="p-2 rounded-full bg-white shadow-md hover:bg-primary hover:text-white transition-colors"
+                aria-label="Предыдущий отзыв"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
               
-              {/* Навигация */}
-              <div className="flex justify-center mt-8 space-x-4">
-                <motion.button
-                  onClick={handlePrev}
-                  className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition"
-                  whileTap={{ scale: 0.9 }}
-                  whileHover={{ scale: 1.1, backgroundColor: '#7D2C3B', color: '#fff' }}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"></path>
-                  </svg>
-                </motion.button>
-                
-                <div className="flex space-x-2 items-center">
-                  {testimonialsData.map((_, index) => (
-                    <motion.button
-                      key={index}
-                      onClick={() => handleDotClick(index)}
-                      className={`w-3 h-3 rounded-full transition-all ${
-                        index === activeIndex 
-                          ? 'bg-primary w-6' 
-                          : 'bg-gray-300 hover:bg-primary/50'
-                      }`}
-                      aria-label={`Перейти к отзыву ${index + 1}`}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.6 + index * 0.1, duration: 0.3 }}
-                    />
-                  ))}
-                </div>
-                
-                <motion.button
-                  onClick={handleNext}
-                  className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-primary hover:text-white transition"
-                  whileTap={{ scale: 0.9 }}
-                  whileHover={{ scale: 1.1, backgroundColor: '#7D2C3B', color: '#fff' }}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"></path>
-                  </svg>
-                </motion.button>
+              <div className="flex space-x-2">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDotClick(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index === activeIndex ? 'bg-primary scale-125' : 'bg-gray-300 hover:bg-gray-400'
+                    }`}
+                    aria-label={`Перейти к отзыву ${index + 1}`}
+                  />
+                ))}
               </div>
+              
+              <button 
+                onClick={handleNext}
+                className="p-2 rounded-full bg-white shadow-md hover:bg-primary hover:text-white transition-colors"
+                aria-label="Следующий отзыв"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
           </div>
         </motion.div>

@@ -3,11 +3,9 @@
 import Hero from './components/Hero';
 import ContactInfo from './components/ContactInfo';
 import Map from './components/Map';
-import ContactForm from './components/ContactForm';
 import WorkingHours from './components/WorkingHours';
 import FAQ from './components/FAQ';
 import SocialLinks from './components/SocialLinks';
-import AppointmentCTA from './components/AppointmentCTA';
 
 export default function ContactPage() {
   return (
@@ -21,14 +19,8 @@ export default function ContactPage() {
       {/* Карта */}
       <Map />
       
-      {/* Форма обратной связи */}
-      <ContactForm />
-      
       {/* Часы работы */}
       <WorkingHours />
-      
-      {/* Запись на консультацию */}
-      <AppointmentCTA />
       
       {/* FAQ секция */}
       <FAQ />

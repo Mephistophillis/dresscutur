@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { CONTACTS } from '~/app/constants/contacts';
 
 export default function CTA() {
   return (
@@ -50,7 +51,7 @@ export default function CTA() {
               transition={{ duration: 0.2 }}
             >
               <Link 
-                href="tel:+71234567890" 
+                href={CONTACTS.links.phone} 
                 className="px-8 py-3 bg-transparent border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors duration-300"
               >
                 Позвонить нам

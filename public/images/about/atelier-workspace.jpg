@@ -1,0 +1,84 @@
+<svg width="600" height="500" viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Градиентный фон -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f1f3f4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e8eaed;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="warmGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d2691e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Фон -->
+  <rect width="600" height="500" fill="url(#bgGradient)"/>
+  
+  <!-- Пол -->
+  <rect x="0" y="400" width="600" height="100" fill="#deb887"/>
+  
+  <!-- Стены -->
+  <rect x="0" y="0" width="600" height="400" fill="#f5f5f5"/>
+  
+  <!-- Окно -->
+  <rect x="450" y="50" width="120" height="180" fill="#b0e0e6" stroke="#4682b4" stroke-width="2"/>
+  <line x1="510" y1="50" x2="510" y2="230" stroke="#4682b4" stroke-width="1"/>
+  <line x1="450" y1="140" x2="570" y2="140" stroke="#4682b4" stroke-width="1"/>
+  
+  <!-- Рабочий стол -->
+  <rect x="50" y="300" width="300" height="100" fill="#d4a574" stroke="#b8956b" stroke-width="2"/>
+  <rect x="50" y="290" width="300" height="10" fill="#b8956b"/>
+  
+  <!-- Швейная машинка -->
+  <rect x="100" y="250" width="80" height="60" fill="#2c3e50" rx="4"/>
+  <rect x="110" y="260" width="60" height="40" fill="#34495e" rx="2"/>
+  <circle cx="140" cy="275" r="8" fill="#95a5a6"/>
+  <circle cx="160" cy="275" r="5" fill="#bdc3c7"/>
+  
+  <!-- Ткани на столе -->
+  <rect x="200" y="280" width="80" height="40" fill="#dc3545" opacity="0.8" rx="5"/>
+  <rect x="210" y="290" width="60" height="30" fill="#007bff" opacity="0.7" rx="3"/>
+  <rect x="220" y="300" width="40" height="20" fill="#28a745" opacity="0.6" rx="2"/>
+  
+  <!-- Инструменты -->
+  <line x1="290" y1="310" x2="330" y2="310" stroke="#6c757d" stroke-width="2" stroke-linecap="round"/>
+  <line x1="295" y1="320" x2="325" y2="320" stroke="#6c757d" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="310" cy="330" r="5" fill="#ffc107"/>
+  
+  <!-- Стеллаж с тканями -->
+  <rect x="380" y="250" width="60" height="150" fill="#8b4513"/>
+  <rect x="385" y="260" width="50" height="15" fill="#dc3545"/>
+  <rect x="385" y="280" width="50" height="15" fill="#007bff"/>
+  <rect x="385" y="300" width="50" height="15" fill="#28a745"/>
+  <rect x="385" y="320" width="50" height="15" fill="#ffc107"/>
+  <rect x="385" y="340" width="50" height="15" fill="#6f42c1"/>
+  
+  <!-- Манекен -->
+  <ellipse cx="150" cy="180" rx="40" ry="60" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  <rect x="135" y="240" width="30" height="80" fill="#6c757d"/>
+  <circle cx="150" cy="270" r="15" fill="#495057"/>
+  
+  <!-- Одежда на манекене -->
+  <path d="M 120 160 Q 150 140 180 160 L 175 220 Q 150 230 125 220 Z" fill="#17a2b8" opacity="0.8"/>
+  
+  <!-- Лампа -->
+  <line x1="250" y1="150" x2="250" y2="50" stroke="#6c757d" stroke-width="3"/>
+  <ellipse cx="250" cy="40" rx="25" ry="15" fill="#fff3cd" stroke="#ffc107" stroke-width="2"/>
+  <circle cx="250" cy="40" r="8" fill="#ffc107"/>
+  
+  <!-- Стул -->
+  <rect x="200" y="350" width="40" height="50" fill="#8b4513"/>
+  <rect x="195" y="340" width="50" height="10" fill="#a0522d"/>
+  <line x1="210" y1="400" x2="210" y2="420" stroke="#6c757d" stroke-width="3"/>
+  <line x1="230" y1="400" x2="230" y2="420" stroke="#6c757d" stroke-width="3"/>
+  
+  <!-- Декоративные элементы -->
+  <circle cx="80" cy="80" r="15" fill="#ffc107" opacity="0.6"/>
+  <circle cx="500" cy="320" r="10" fill="#dc3545" opacity="0.5"/>
+  <circle cx="400" cy="100" r="8" fill="#28a745" opacity="0.7"/>
+  
+  <!-- Текст -->
+  <text x="300" y="450" text-anchor="middle" font-family="serif" font-size="18" font-weight="bold" fill="url(#warmGradient)">
+    Наше рабочее пространство
+  </text>
+</svg> 

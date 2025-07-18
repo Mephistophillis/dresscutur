@@ -1,54 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FabricCard from './FabricCard';
-import { Fabric } from '../../lib/types';
-import { fabricsData } from './data/fabricsData';
+import { PublicFabric } from '~/app/actions/public/fabrics';
 
 interface FabricGridProps {
-  filters: {
-    category: string;
-    purpose: string;
-    color: string;
-    search: string;
-  };
+  fabrics: PublicFabric[];
+  isLoading: boolean;
+  onResetFilters?: () => Promise<void>;
 }
 
-const FabricGrid: React.FC<FabricGridProps> = ({ filters }) => {
+const FabricGrid: React.FC<FabricGridProps> = ({ fabrics, isLoading, onResetFilters }) => {
   const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
-  const [filteredFabrics, setFilteredFabrics] = useState<Fabric[]>(fabricsData);
   
-  useEffect(() => {
-    // Filter fabrics based on selected filters
-    const filtered = fabricsData.filter((fabric) => {
-      // Category filter
-      if (filters.category !== 'all' && fabric.category !== filters.category) {
-        return false;
-      }
-      
-      // Purpose filter
-      if (filters.purpose !== 'all' && fabric.purpose && !fabric.purpose.includes(filters.purpose)) {
-        return false;
-      }
-      
-      // Color filter
-      if (filters.color !== 'all' && fabric.colors && !fabric.colors.includes(filters.color)) {
-        return false;
-      }
-      
-      // Search filter
-      if (filters.search && !fabric.name.toLowerCase().includes(filters.search.toLowerCase()) &&
-          !fabric.description.toLowerCase().includes(filters.search.toLowerCase())) {
-        return false;
-      }
-      
-      return true;
-    });
-    
-    setFilteredFabrics(filtered);
-  }, [filters]);
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -59,13 +24,41 @@ const FabricGrid: React.FC<FabricGridProps> = ({ filters }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <section className="py-16 bg-light" id="fabric-grid">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-serif font-semibold text-dark">Коллекция тканей</h2>
+              <p className="text-gray-600 mt-2">Загрузка...</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, index) => (
+              <div 
+                key={index} 
+                className="bg-white rounded-lg shadow-md p-4 h-64 animate-pulse"
+              >
+                <div className="w-full h-32 bg-gray-200 rounded mb-4"></div>
+                <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-16 bg-light" id="fabric-grid">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h2 className="text-3xl font-serif font-semibold text-dark">Коллекция тканей</h2>
-            <p className="text-gray-600 mt-2">Найдено {filteredFabrics.length} тканей</p>
+            <p className="text-gray-600 mt-2">Найдено {fabrics.length} тканей</p>
           </div>
           
           <div className="flex items-center gap-4">
@@ -92,13 +85,13 @@ const FabricGrid: React.FC<FabricGridProps> = ({ filters }) => {
           </div>
         </div>
         
-        {filteredFabrics.length === 0 ? (
+        {fabrics.length === 0 ? (
           <div className="text-center py-16">
             <h3 className="text-xl text-gray-600 mb-4">Ткани не найдены</h3>
             <p className="text-gray-500 mb-6">Попробуйте изменить параметры фильтрации</p>
             <button
               className="btn-outline"
-              onClick={() => window.location.reload()}
+              onClick={onResetFilters}
             >
               Сбросить все фильтры
             </button>
@@ -115,7 +108,7 @@ const FabricGrid: React.FC<FabricGridProps> = ({ filters }) => {
             animate="visible"
           >
             <AnimatePresence>
-              {filteredFabrics.map((fabric) => (
+              {fabrics.map((fabric) => (
                 <motion.div
                   key={fabric.id}
                   layout

@@ -3,14 +3,21 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getServiceById, createService, updateService } from '~/app/actions/admin/services-prisma';
+import ImageUpload from '~/app/admin/components/ui/image-upload';
 
 interface ServiceFormData {
   title: string;
   description: string;
-  icon?: string;
-  image?: string;
+  icon?: string | null;
+  image?: string | null;
   isActive: boolean;
   order: number;
+  advantages: string[];
+  timeline: {
+    consultation: string;
+    execution: string;
+  };
 }
 
 export default function ServiceEditPage() {
@@ -25,11 +32,20 @@ export default function ServiceEditPage() {
   const [formData, setFormData] = useState<ServiceFormData>({
     title: '',
     description: '',
-    icon: '',
-    image: '',
+    icon: null,
+    image: null,
     isActive: true,
     order: 0,
+    advantages: ['Профессиональный подход', 'Качественные материалы', 'Внимание к деталям'],
+    timeline: {
+      consultation: '30-60 минут',
+      execution: '3-14 дней'
+    }
   });
+
+  console.log({
+    formData,
+  })
 
   useEffect(() => {
     // Если это новая услуга, нет необходимости загружать данные
@@ -44,21 +60,23 @@ export default function ServiceEditPage() {
         setError(null);
         setIsLoading(true);
         
-        // В реальном приложении здесь будет запрос к серверу
-        // const response = await fetch(`/api/services/${id}`);
-        // const data = await response.json();
+        // Используем server action для получения данных
+        const service = await getServiceById(id);
         
-        // Для демонстрации используем мок-данные
-        const mockService = getMockService(id);
-        
-        if (mockService) {
+        if (service) {
+          // Маппим данные из модели БД в формат для формы
           setFormData({
-            title: mockService.title,
-            description: mockService.description,
-            icon: mockService.icon || '',
-            image: mockService.image || '',
-            isActive: mockService.isActive,
-            order: mockService.order,
+            title: service.name,
+            description: service.description,
+            icon: service.icon || null, 
+            image: service.image || null,
+            isActive: service.isActive,
+            order: service.order,
+            advantages: service.advantages || ['Профессиональный подход', 'Качественные материалы', 'Внимание к деталям'],
+            timeline: {
+              consultation: ((service.timeline as unknown) as { consultation?: string })?.consultation || '30-60 минут',
+              execution: ((service.timeline as unknown) as { execution?: string })?.execution || '3-14 дней'
+            }
           });
         } else {
           setError('Услуга не найдена');
@@ -90,11 +108,62 @@ export default function ServiceEditPage() {
     }));
   };
 
+  // Обработчик изменения изображения
+  const handleImageChange = (url: string, field: 'icon' | 'image') => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: url,
+    }));
+  };
+
   // Обработчик переключения активности
   const handleToggleActive = () => {
     setFormData((prev) => ({
       ...prev,
       isActive: !prev.isActive,
+    }));
+  };
+
+  // Обработчик изменения массива преимуществ
+  const handleAdvantageChange = (index: number, value: string) => {
+    setFormData(prev => {
+      const newAdvantages = [...prev.advantages];
+      newAdvantages[index] = value;
+      return {
+        ...prev,
+        advantages: newAdvantages
+      };
+    });
+  };
+
+  // Обработчик добавления нового преимущества
+  const handleAddAdvantage = () => {
+    setFormData(prev => ({
+      ...prev,
+      advantages: [...prev.advantages, '']
+    }));
+  };
+
+  // Обработчик удаления преимущества
+  const handleRemoveAdvantage = (index: number) => {
+    setFormData(prev => {
+      const newAdvantages = [...prev.advantages];
+      newAdvantages.splice(index, 1);
+      return {
+        ...prev,
+        advantages: newAdvantages
+      };
+    });
+  };
+
+  // Обработчик изменения сроков
+  const handleTimelineChange = (field: 'consultation' | 'execution', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      timeline: {
+        ...prev.timeline,
+        [field]: value
+      }
     }));
   };
 
@@ -106,69 +175,26 @@ export default function ServiceEditPage() {
       setError(null);
       setIsSaving(true);
       
-      // В реальном приложении здесь будет отправка данных на сервер
-      // const response = await fetch(`/api/services/${isNew ? '' : id}`, {
-      //   method: isNew ? 'POST' : 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      // const data = await response.json();
-      
-      // Имитация успешного сохранения
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Перенаправление на список услуг
-      router.push('/admin/services');
-      router.refresh();
+      const result = isNew 
+        ? await createService(formData)
+        : await updateService(id, formData);
+        
+      if (result.success) {
+        // Перенаправление на список услуг
+        router.push('/admin/services');
+        router.refresh();
+      } else if (result.error) {
+        setError(result.error);
+        setIsSaving(false);
+      } else if (result.errors) {
+        setError('Пожалуйста, проверьте правильность заполнения формы');
+        setIsSaving(false);
+      }
     } catch (err) {
       console.error('Failed to save service:', err);
       setError('Не удалось сохранить услугу');
       setIsSaving(false);
     }
-  };
-
-  // Вспомогательная функция для получения мок-данных
-  const getMockService = (id: string) => {
-    const services = [
-      {
-        id: '1',
-        title: 'Индивидуальный пошив',
-        description: 'Создание уникальной одежды по вашим меркам и пожеланиям.',
-        icon: '/images/icons/tailoring.svg',
-        image: '/images/services/tailoring.jpg',
-        isActive: true,
-        order: 1,
-      },
-      {
-        id: '2',
-        title: 'Ремонт и реставрация',
-        description: 'Профессиональный ремонт любимых вещей: замена молний, подгонка по фигуре, устранение дефектов.',
-        icon: '/images/icons/repair.svg',
-        image: '/images/services/repair.jpg',
-        isActive: true,
-        order: 2,
-      },
-      {
-        id: '3',
-        title: 'Пошив штор и текстиля',
-        description: 'Изготовление штор, покрывал, подушек и другого домашнего текстиля по индивидуальным размерам.',
-        icon: '/images/icons/curtains.svg',
-        image: '/images/services/curtains.jpg',
-        isActive: false,
-        order: 3,
-      },
-      {
-        id: '4',
-        title: 'Свадебная и вечерняя мода',
-        description: 'Создание эксклюзивных свадебных и вечерних нарядов с учетом последних тенденций моды.',
-        icon: '/images/icons/wedding.svg',
-        image: '/images/services/wedding.jpg',
-        isActive: true,
-        order: 4,
-      },
-    ];
-    
-    return services.find(service => service.id === id);
   };
 
   return (
@@ -226,36 +252,17 @@ export default function ServiceEditPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label htmlFor="icon" className="block text-sm font-medium text-gray-700 mb-1">
-                Иконка (URL)
-              </label>
-              <input
-                type="text"
-                id="icon"
-                name="icon"
-                value={formData.icon}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
 
-            <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
-                Изображение (URL)
-              </label>
-              <input
-                type="text"
-                id="image"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <ImageUpload
+              id="service-image"
+              label="Изображение услуги"
+              initialImage={formData.image}
+              onImageUpload={(url) => handleImageChange(url, 'image')}
+              category="services"
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label htmlFor="order" className="block text-sm font-medium text-gray-700 mb-1">
                 Порядок отображения
@@ -271,41 +278,101 @@ export default function ServiceEditPage() {
               />
             </div>
 
-            <div className="flex items-center h-full pt-6">
-              <label className="flex items-center text-sm font-medium text-gray-700 cursor-pointer">
+            <div className="flex items-center h-full pt-5">
+              <label className="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
+                  name="isActive"
                   checked={formData.isActive}
                   onChange={handleToggleActive}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <span className="ml-2">Активная услуга</span>
+                <span className="ml-2 text-sm text-gray-700">Активна</span>
               </label>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-700 mb-3">Преимущества</h3>
+            <div className="space-y-2">
+              {formData.advantages.map((advantage, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={advantage}
+                    onChange={(e) => handleAdvantageChange(index, e.target.value)}
+                    className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Введите преимущество"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAdvantage(index)}
+                    className="p-2 text-red-500 hover:text-red-700"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleAddAdvantage}
+                className="mt-2 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Добавить преимущество
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-700 mb-3">Сроки выполнения</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="consultation" className="block text-sm font-medium text-gray-700 mb-1">
+                  Консультация
+                </label>
+                <input
+                  type="text"
+                  id="consultation"
+                  value={formData.timeline.consultation}
+                  onChange={(e) => handleTimelineChange('consultation', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Например: 30-60 минут"
+                />
+              </div>
+              <div>
+                <label htmlFor="execution" className="block text-sm font-medium text-gray-700 mb-1">
+                  Срок выполнения
+                </label>
+                <input
+                  type="text"
+                  id="execution"
+                  value={formData.timeline.execution}
+                  onChange={(e) => handleTimelineChange('execution', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Например: 3-14 дней"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-4">
             <Link
               href="/admin/services"
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md"
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Отмена
             </Link>
             <button
               type="submit"
               disabled={isSaving}
-              className={`px-4 py-2 rounded-md text-white ${
-                isSaving ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+              className="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSaving ? (
-                <>
-                  <span className="inline-block animate-spin mr-2">⏳</span>
-                  Сохранение...
-                </>
-              ) : (
-                'Сохранить'
-              )}
+              {isSaving ? 'Сохранение...' : isNew ? 'Создать' : 'Сохранить изменения'}
             </button>
           </div>
         </form>

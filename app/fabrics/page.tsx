@@ -1,40 +1,25 @@
-'use client';
-
-import { NextPage } from 'next';
-import { useState } from 'react';
+import React, { Suspense } from 'react';
 
 // Import components
 import Hero from './components/Hero';
-import FabricGrid from './components/FabricGrid';
 import FilterPanel from './components/FilterPanel';
 import QualitySection from './components/QualitySection';
 import OrderCTA from './components/OrderCTA';
+import { getActiveFabrics } from '../actions/public/fabrics';
 
-const FabricsPage: NextPage = () => {
-  const [filters, setFilters] = useState({
-    category: 'all',
-    purpose: 'all',
-    color: 'all',
-    search: '',
-  });
-
-  const handleFilterChange = (type: string, value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      [type]: value,
-    }));
-  };
+export default async function FabricsPage() {
+  // Получаем все ткани, начальная загрузка без фильтров
+  const fabrics = await getActiveFabrics();
 
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
       <Hero />
       
-      {/* Filter Panel */}
-      <FilterPanel filters={filters} onFilterChange={handleFilterChange} />
-      
-      {/* Fabric Grid */}
-      <FabricGrid filters={filters} />
+      {/* Filter Panel и Fabric Grid с props для server action */}
+      <Suspense fallback={<div className="flex justify-center items-center py-12">Загрузка...</div>}>
+        <FilterPanel initialFabrics={fabrics} />
+      </Suspense>
       
       {/* Quality Section */}
       <QualitySection />
@@ -43,6 +28,4 @@ const FabricsPage: NextPage = () => {
       <OrderCTA />
     </main>
   );
-};
-
-export default FabricsPage; 
+} 

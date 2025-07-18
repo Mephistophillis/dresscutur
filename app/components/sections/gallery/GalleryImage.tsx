@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { PublicGalleryItem } from '~/app/actions/public/gallery';
 
-export interface GalleryImageType {
-  id: number;
-  src: string;
-  alt: string;
-  category: string;
-  description: string;
-}
+// Расширенный тип для совместимости с API галереи
+export type GalleryImageType = PublicGalleryItem;
 
 interface GalleryImageProps {
   image: GalleryImageType;

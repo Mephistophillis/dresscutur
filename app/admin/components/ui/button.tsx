@@ -1,171 +1,88 @@
-import React, { ButtonHTMLAttributes } from 'react';
-import Link from 'next/link';
+'use client';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  isLoading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+import React from 'react';
+import { cn } from "../../../../lib/utils";
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'success' | 'warning';
+  size?: 'default' | 'sm' | 'lg' | 'icon' | 'xs';
 }
 
-type ButtonLinkProps = {
-  children: React.ReactNode;
-  href: string;
-  external?: boolean;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
-  disabled?: boolean;
-  icon?: React.ReactNode;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  isLoading?: boolean;
-};
-
-// Utility function to get variant classes
-const getVariantClasses = (variant: ButtonProps['variant'] = 'primary') => {
+// Утилита для получения классов варианта
+const getVariantClasses = (variant: ButtonProps['variant'] = 'default') => {
   const variants = {
-    primary: 'bg-primary text-white hover:bg-primary/90 focus:ring-primary/50',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500/50',
-    outline: 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500/50',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500/50',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500/50',
+    default: 'bg-violet-600 text-white hover:bg-violet-700 border-transparent shadow-sm',
+    destructive: 'bg-red-600 text-white hover:bg-red-700 border-transparent shadow-sm',
+    outline: 'border border-slate-300 bg-white text-slate-900 hover:bg-slate-50 hover:border-slate-400',
+    secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 border-transparent',
+    ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-transparent',
+    link: 'text-violet-600 underline-offset-4 hover:underline border-transparent p-0 h-auto',
+    success: 'bg-green-600 text-white hover:bg-green-700 border-transparent shadow-sm',
+    warning: 'bg-amber-500 text-white hover:bg-amber-600 border-transparent shadow-sm',
   };
   
   return variants[variant];
 };
 
-// Utility function to get size classes
-const getSizeClasses = (size: ButtonProps['size'] = 'md') => {
+// Утилита для получения классов размера
+const getSizeClasses = (size: ButtonProps['size'] = 'default') => {
   const sizes = {
-    sm: 'py-1 px-3 text-xs',
-    md: 'py-2 px-4 text-sm',
-    lg: 'py-3 px-6 text-base',
+    xs: 'h-7 px-2 text-xs',
+    sm: 'h-8 px-3 text-sm',
+    default: 'h-10 px-4 py-2 text-sm',
+    lg: 'h-11 px-6 text-base',
+    icon: 'h-10 w-10 p-0',
   };
   
   return sizes[size];
 };
 
-// Base button component
-export function Button({
-  children,
-  variant = 'primary',
-  size = 'md',
-  isLoading = false,
-  leftIcon,
-  rightIcon,
-  className = '',
-  disabled,
-  ...props
-}: ButtonProps) {
-  const variantClasses = getVariantClasses(variant);
-  const sizeClasses = getSizeClasses(size);
-  
-  // Состояние disabled или loading
-  const stateClasses = (disabled || isLoading) ? 'opacity-60 cursor-not-allowed' : '';
-  
-  return (
-    <button
-      className={`
-        inline-flex items-center justify-center font-medium rounded-md shadow-sm 
-        focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors
-        ${variantClasses} 
-        ${sizeClasses} 
-        ${stateClasses} 
-        ${className}
-      `}
-      disabled={disabled || isLoading}
-      {...props}
-    >
-      {isLoading && (
-        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-      )}
-      
-      {!isLoading && leftIcon && <span className="mr-2">{leftIcon}</span>}
-      {children}
-      {!isLoading && rightIcon && <span className="ml-2">{rightIcon}</span>}
-    </button>
-  );
-}
-
-// Button that works as a link
-export function ButtonLink({
-  children,
-  href,
-  external = false,
-  variant = 'primary',
-  size = 'md',
-  className = '',
-  disabled = false,
-  icon,
-  leftIcon,
-  rightIcon,
-  isLoading = false,
-}: ButtonLinkProps) {
-  const variantClasses = getVariantClasses(variant);
-  const sizeClasses = getSizeClasses(size);
-  
-  const linkClasses = `inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${disabled ? 'opacity-50 pointer-events-none' : ''} ${variantClasses} ${sizeClasses} ${className}`;
-  
-  if (external) {
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, children, ...props }, ref) => {
+    const variantClasses = getVariantClasses(variant);
+    const sizeClasses = getSizeClasses(size);
+    
+    const buttonClasses = cn(
+      'inline-flex items-center justify-center rounded-lg font-medium border',
+      'transition-all duration-200 focus-visible:outline-none',
+      'focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2',
+      'disabled:pointer-events-none disabled:opacity-50',
+      'active:scale-95',
+      variantClasses,
+      sizeClasses,
+      className
+    );
+    
     return (
-      <a 
-        href={href} 
-        className={linkClasses}
-        target="_blank" 
-        rel="noopener noreferrer"
+      <button
+        className={buttonClasses}
+        ref={ref}
+        {...props}
       >
-        {isLoading && (
-          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-        )}
-        {!isLoading && (leftIcon || icon) && <span className="mr-2">{leftIcon || icon}</span>}
         {children}
-        {!isLoading && rightIcon && <span className="ml-2">{rightIcon}</span>}
-      </a>
+      </button>
     );
   }
-  
-  return (
-    <Link 
-      href={href} 
-      className={linkClasses}
-    >
-      {isLoading && (
-        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-      )}
-      {!isLoading && (leftIcon || icon) && <span className="mr-2">{leftIcon || icon}</span>}
-      {children}
-      {!isLoading && rightIcon && <span className="ml-2">{rightIcon}</span>}
-    </Link>
-  );
-}
+)
 
-// IconButton component
-export function IconButton({
-  icon,
-  variant = 'ghost',
-  size = 'sm',
-  className = '',
-  ...props
-}: Omit<ButtonProps, 'children'> & { icon: React.ReactElement }) {
-  return (
-    <Button
-      variant={variant}
-      size={size}
-      className={`p-2 ${className}`}
-      {...props}
-    >
-      {icon}
-    </Button>
+Button.displayName = "Button";
+
+// Сохраняем функцию buttonVariants для обратной совместимости
+const buttonVariants = ({ variant, size, className }: { 
+  variant?: ButtonProps['variant'],
+  size?: ButtonProps['size'],
+  className?: string 
+}) => {
+  return cn(
+    'inline-flex items-center justify-center rounded-lg font-medium border',
+    'transition-all duration-200 focus-visible:outline-none',
+    'focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2',
+    'disabled:pointer-events-none disabled:opacity-50',
+    'active:scale-95',
+    getVariantClasses(variant),
+    getSizeClasses(size),
+    className
   );
-} 
+};
+
+export { Button, buttonVariants }; 

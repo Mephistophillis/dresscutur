@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GalleryItemType } from './GalleryItem';
+import SocialShare from './SocialShare';
+import { getGalleryItemDetails, PublicGalleryItemDetails } from '~/app/actions/public/gallery';
 
 interface GalleryModalProps {
   isOpen: boolean;
@@ -11,401 +13,398 @@ interface GalleryModalProps {
   onClose: () => void;
 }
 
-const modalVariants = {
-  hidden: { opacity: 0 },
-  visible: { 
-    opacity: 1,
-    transition: { duration: 0.3 }
-  },
-  exit: { 
-    opacity: 0,
-    transition: { duration: 0.2 }
-  }
-};
-
-const contentVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: { 
-    opacity: 1, 
-    scale: 1,
-    transition: { 
-      duration: 0.3, 
-      delay: 0.1 
-    }
-  },
-  exit: { 
-    opacity: 0, 
-    scale: 0.8,
-    transition: { duration: 0.2 }
-  }
-};
+interface ImageItem {
+  id: string;
+  src: string;
+  alt: string;
+}
 
 const GalleryModal: React.FC<GalleryModalProps> = ({ isOpen, item, onClose }) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-
-  // Reset current image index when modal opens
+  const [activeTab, setActiveTab] = useState<'photos' | 'details'>('photos');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [itemDetails, setItemDetails] = useState<PublicGalleryItemDetails | null>(null);
+  
+  // Загружаем подробности элемента при открытии модального окна
   useEffect(() => {
-    if (isOpen) {
-      setCurrentImageIndex(0);
-      setIsZoomed(false);
+    if (isOpen && item) {
+      const loadDetails = async () => {
+        setIsLoading(true);
+        try {
+          const details = await getGalleryItemDetails(item.id);
+          if (details) {
+            setItemDetails(details);
+          }
+        } catch (error) {
+          console.error('Ошибка при загрузке деталей:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      loadDetails();
+    } else {
+      // Сбрасываем состояние при закрытии
+      setItemDetails(null);
+      setSelectedImageIndex(0);
+      setActiveTab('photos');
     }
   }, [isOpen, item]);
-
-  // Lock body scroll when modal is open
+  
+  // Закрытие модального окна при нажатии Escape
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-
-  // Close modal on escape key press
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
-
-  // Get all images (main + related)
-  const getAllImages = useCallback(() => {
-    if (!item) return [];
-    
-    const images = [{ src: item.src, alt: item.alt }];
-    if (item.relatedImages && item.relatedImages.length > 0) {
-      images.push(...item.relatedImages);
+    if (isOpen) {
+      window.addEventListener('keydown', handleEscape);
     }
     
-    return images;
-  }, [item]);
-
-  // Navigation functions
-  const navigateNext = useCallback(() => {
-    const images = getAllImages();
-    if (images.length <= 1) return;
-    
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    setIsZoomed(false);
-  }, [getAllImages]);
-
-  const navigatePrevious = useCallback(() => {
-    const images = getAllImages();
-    if (images.length <= 1) return;
-    
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-    setIsZoomed(false);
-  }, [getAllImages]);
-
-  // Navigate with arrow keys
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen || !item) return;
-      
-      if (e.key === 'ArrowLeft') {
-        navigatePrevious();
-      } else if (e.key === 'ArrowRight') {
-        navigateNext();
-      }
+    return () => {
+      window.removeEventListener('keydown', handleEscape);
     };
+  }, [isOpen, onClose]);
+  
+  // Обработчик следующей/предыдущей фотографии
+  const handleNext = () => {
+    if (!itemDetails || !itemDetails.relatedImages.length) return;
     
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, item, currentImageIndex, navigateNext, navigatePrevious]);
-
-  // Handle touch events for swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    if (selectedImageIndex === itemDetails.relatedImages.length) {
+      // Если мы на основном изображении и нажали "следующее" - переходим к первой фотографии
+      setSelectedImageIndex(0);
+    } else {
+      setSelectedImageIndex((prev) => (prev + 1) % (itemDetails.relatedImages.length + 1));
+    }
   };
   
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+  const handlePrev = () => {
+    if (!itemDetails || !itemDetails.relatedImages.length) return;
+    
+    if (selectedImageIndex === 0) {
+      // Если мы на первой фотографии и нажали "предыдущее" - переходим к основному изображению
+      setSelectedImageIndex(itemDetails.relatedImages.length);
+    } else {
+      setSelectedImageIndex((prev) => (prev - 1 + (itemDetails.relatedImages.length + 1)) % (itemDetails.relatedImages.length + 1));
+    }
   };
   
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-    
-    if (isLeftSwipe) {
-      navigateNext();
-    }
-    
-    if (isRightSwipe) {
-      navigatePrevious();
-    }
-    
-    setTouchStart(null);
-    setTouchEnd(null);
+  // Convert category ID to display name (такой же как в GalleryItem)
+  const categoryDisplayNames: Record<string, string> = {
+    'wedding': 'Свадебные наряды',
+    'evening': 'Вечерние платья',
+    'suits': 'Мужские костюмы',
+    'women': 'Женская одежда',
+    'outerwear': 'Верхняя одежда',
+    'children': 'Детская одежда',
+    'special': 'Особые проекты',
+    'business': 'Деловая одежда',
+    'casual': 'Повседневная'
   };
-
-  // Toggle zoom
-  const toggleZoom = () => {
-    setIsZoomed(!isZoomed);
-  };
-
-  // Share on social media
-  const shareOnSocial = (platform: 'facebook' | 'twitter' | 'pinterest') => {
-    if (!item) return;
-    
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`${item.alt} - ${item.description}`);
-    
-    let shareUrl = '';
-    
-    switch (platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-        break;
-      case 'pinterest':
-        shareUrl = `https://pinterest.com/pin/create/button/?url=${url}&description=${text}`;
-        break;
-    }
-    
-    window.open(shareUrl, '_blank', 'width=600,height=400');
-  };
-
-  if (!item) return null;
-
-  const images = getAllImages();
-  const currentImage = images[currentImageIndex];
-
-  // Format category names for display
-  const getCategoryName = (categoryId: string) => {
-    const categoryMap: Record<string, string> = {
-      'wedding': 'Свадебные наряды',
-      'evening': 'Вечерние платья',
-      'suits': 'Мужские костюмы',
-      'women': 'Женская одежда',
-      'outerwear': 'Верхняя одежда',
-      'children': 'Детская одежда',
-      'special': 'Особые проекты'
-    };
-    
-    return categoryMap[categoryId] || categoryId;
-  };
-
+  
+  if (!isOpen || !item) return null;
+  
+  // Массив всех фотографий для слайдера (основное изображение + связанные)
+  const allImages: ImageItem[] = itemDetails ? 
+    [{ id: 'main', src: itemDetails.src, alt: itemDetails.alt }].concat(
+      itemDetails.relatedImages.map(img => ({
+        id: img.id,
+        src: img.src,
+        alt: img.alt || img.src.split('/').pop() || 'Изображение галереи'
+      }))
+    ) : 
+    [{ id: 'main', src: item.src, alt: item.alt }];
+  
+  // Текущее изображение для отображения
+  const currentImage = allImages[selectedImageIndex] || allImages[0];
+  
   return (
     <AnimatePresence>
-      {isOpen && (
-        <motion.div 
-          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center"
-          variants={modalVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          onClick={onClose}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        {/* Модальное окно */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.3 }}
+          className="relative w-full max-w-6xl mx-auto bg-white rounded-lg shadow-2xl max-h-[90vh] overflow-auto"
+          onClick={(e) => e.stopPropagation()}
         >
-          {/* Main content */}
-          <motion.div 
-            className="relative w-full max-w-6xl max-h-[90vh] mx-4 bg-white rounded-lg overflow-hidden flex flex-col md:flex-row"
-            variants={contentVariants}
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking content
+          {/* Кнопка закрытия */}
+          <button
+            className="absolute top-4 right-4 z-10 p-2 bg-white/80 rounded-full transition-colors hover:bg-white"
+            onClick={onClose}
+            aria-label="Закрыть"
           >
-            {/* Close button */}
-            <button 
-              className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all"
-              onClick={onClose}
-              aria-label="Закрыть"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            {/* Left/right navigation buttons */}
-            {images.length > 1 && (
-              <>
-                <button 
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigatePrevious();
-                  }}
-                  aria-label="Предыдущее изображение"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button 
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigateNext();
-                  }}
-                  aria-label="Следующее изображение"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </>
-            )}
-            
-            {/* Image container */}
-            <div 
-              className={`relative w-full md:w-3/5 h-[40vh] md:h-[70vh] bg-gray-100 cursor-pointer ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
-              onClick={toggleZoom}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentImageIndex}
-                  className="relative w-full h-full"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Image 
-                    src={currentImage.src} 
-                    alt={currentImage.alt}
-                    fill
-                    className={`${isZoomed ? 'object-contain scale-150 cursor-zoom-out' : 'object-contain'} transition-transform duration-300`}
-                    sizes="(max-width: 768px) 100vw, 60vw"
-                    priority
-                  />
-                </motion.div>
-              </AnimatePresence>
-              
-              {/* Image indicators for multiple images */}
-              {images.length > 1 && (
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-                  {images.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`w-2 h-2 rounded-full ${currentImageIndex === index ? 'bg-white' : 'bg-gray-400'}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentImageIndex(index);
-                        setIsZoomed(false);
-                      }}
-                      aria-label={`Изображение ${index + 1}`}
-                    />
-                  ))}
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          {/* Содержимое модального окна */}
+          <div className="md:flex">
+            {/* Левая часть - фотография */}
+            <div className="md:w-3/5 relative bg-gray-100">
+              {/* Loading spinner */}
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-70 z-10">
+                  <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
+              )}
+              
+              {/* Основное изображение */}
+              <div className="relative aspect-[4/3] md:aspect-auto md:h-[80vh]">
+                <Image
+                  src={currentImage.src}
+                  alt={currentImage.alt || ''}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              
+              {/* Навигация по изображениям */}
+              {itemDetails && itemDetails.relatedImages && itemDetails.relatedImages.length > 0 && (
+                <>
+                  <button
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full hover:bg-white transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrev();
+                    }}
+                    aria-label="Предыдущее изображение"
+                  >
+                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  
+                  <button
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full hover:bg-white transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNext();
+                    }}
+                    aria-label="Следующее изображение"
+                  >
+                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  
+                  {/* Thumbnails */}
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 px-4">
+                    {allImages.map((img, index) => (
+                      <button
+                        key={img.id}
+                        className={`w-12 h-12 relative rounded overflow-hidden border-2 transition-all ${
+                          selectedImageIndex === index 
+                            ? 'border-primary' 
+                            : 'border-white/50 hover:border-white'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedImageIndex(index);
+                        }}
+                      >
+                        <Image 
+                          src={img.src} 
+                          alt={img.alt || ''} 
+                          fill 
+                          className="object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
             
-            {/* Details panel */}
-            <div className="w-full md:w-2/5 p-6 md:p-8 overflow-y-auto">
-              <h2 className="text-2xl font-serif font-semibold text-gray-900 mb-2">{item.alt}</h2>
-              <p className="text-gray-700 mb-4">{item.description}</p>
-              
-              <div className="mb-6">
-                <span className="inline-block px-3 py-1 bg-primary text-white text-sm font-medium rounded-full">
-                  {getCategoryName(item.category)}
-                </span>
-                {item.isNew && (
-                  <span className="inline-block ml-2 px-3 py-1 bg-accent text-dark text-sm font-medium rounded-full">
-                    Новинка
-                  </span>
-                )}
-              </div>
-              
-              {/* Details section */}
-              {item.details && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Детали проекта</h3>
-                  <div className="space-y-3">
-                    {item.details.client && (
-                      <div>
-                        <span className="text-sm text-gray-500">Клиент:</span>
-                        <p className="text-gray-900">{item.details.client}</p>
-                      </div>
-                    )}
+            {/* Правая часть - информация */}
+            <div className="md:w-2/5 p-6 md:p-8 md:overflow-y-auto md:max-h-[80vh]">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-2xl font-serif font-semibold text-gray-900">
+                    {item.alt}
+                  </h2>
+                  
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="inline-block px-3 py-1 text-xs text-white bg-primary rounded-full">
+                      {categoryDisplayNames[item.category] || item.category}
+                    </span>
                     
-                    {item.details.date && (
-                      <div>
-                        <span className="text-sm text-gray-500">Дата изготовления:</span>
-                        <p className="text-gray-900">
-                          {new Date(item.details.date).toLocaleDateString('ru-RU', {
-                            year: 'numeric',
-                            month: 'long'
-                          })}
-                        </p>
-                      </div>
-                    )}
-                    
-                    {item.details.materials && item.details.materials.length > 0 && (
-                      <div>
-                        <span className="text-sm text-gray-500">Материалы:</span>
-                        <ul className="text-gray-900 ml-4 mt-1 list-disc">
-                          {item.details.materials.map((material, index) => (
-                            <li key={index}>{material}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {item.details.process && (
-                      <div>
-                        <span className="text-sm text-gray-500">Процесс изготовления:</span>
-                        <p className="text-gray-900">{item.details.process}</p>
-                      </div>
+                    {item.isNew && (
+                      <span className="inline-block px-3 py-1 text-xs bg-accent text-dark rounded-full">
+                        Новое
+                      </span>
                     )}
                   </div>
                 </div>
-              )}
-              
-              {/* Call to action */}
-              <div className="mb-6">
-                <button className="w-full py-3 bg-primary text-white rounded-md hover:bg-opacity-90 transition-all">
-                  Заказать похожее
-                </button>
+                
+                <SocialShare 
+                  url={`${window.location.origin}/gallery?item=${item.id}`} 
+                  title={`Проект "${item.alt}" от Dress Cutur`}
+                />
               </div>
               
-              {/* Social share */}
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => shareOnSocial('facebook')}
-                  className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
-                  aria-label="Поделиться в Facebook"
+              {/* Описание */}
+              <div className="mt-6">
+                <p className="text-gray-700 leading-relaxed">{item.description}</p>
+              </div>
+              
+              {/* Табы */}
+              <div className="mt-8 border-b border-gray-200">
+                <div className="flex space-x-8">
+                  <button
+                    className={`pb-4 font-medium text-sm transition-colors relative ${
+                      activeTab === 'photos' 
+                        ? 'text-primary' 
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => setActiveTab('photos')}
+                  >
+                    Фотографии
+                    {activeTab === 'photos' && (
+                      <motion.div 
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" 
+                        layoutId="activeTab"
+                      />
+                    )}
+                  </button>
+                  
+                  <button
+                    className={`pb-4 font-medium text-sm transition-colors relative ${
+                      activeTab === 'details' 
+                        ? 'text-primary' 
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => setActiveTab('details')}
+                  >
+                    Детали проекта
+                    {activeTab === 'details' && (
+                      <motion.div 
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" 
+                        layoutId="activeTab"
+                      />
+                    )}
+                  </button>
+                </div>
+              </div>
+              
+              {/* Содержимое табов */}
+              <div className="mt-6">
+                <AnimatePresence mode="wait">
+                  {activeTab === 'photos' ? (
+                    <motion.div
+                      key="photos"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="grid grid-cols-2 gap-4">
+                        {allImages.map((img, index) => (
+                          <div 
+                            key={img.id}
+                            className="relative aspect-[3/4] cursor-pointer rounded-lg overflow-hidden"
+                            onClick={() => setSelectedImageIndex(index)}
+                          >
+                            <Image 
+                              src={img.src}
+                              alt={img.alt || ''} 
+                              fill
+                              className="object-cover transition-transform hover:scale-105 duration-300"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="details"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {isLoading ? (
+                        <div className="flex justify-center py-12">
+                          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {/* Если детали есть, выводим их */}
+                          {(itemDetails?.details || item.details) && (
+                            <>
+                              {/* Клиент */}
+                              {(itemDetails?.details?.client || item.details?.client) && (
+                                <div>
+                                  <h3 className="text-sm text-gray-500">Клиент:</h3>
+                                  <p className="font-medium">{itemDetails?.details?.client || item.details?.client}</p>
+                                </div>
+                              )}
+                              
+                              {/* Дата */}
+                              {(itemDetails?.details?.date || item.details?.date) && (
+                                <div>
+                                  <h3 className="text-sm text-gray-500">Дата создания:</h3>
+                                  <p className="font-medium">{itemDetails?.details?.date || item.details?.date}</p>
+                                </div>
+                              )}
+                              
+                              {/* Материалы */}
+                              {(itemDetails?.details?.materials?.length || item.details?.materials?.length) && (
+                                <div>
+                                  <h3 className="text-sm text-gray-500">Материалы:</h3>
+                                  <ul className="list-disc list-inside space-y-1 mt-1">
+                                    {(itemDetails?.details?.materials || item.details?.materials || []).map((material, idx) => (
+                                      <li key={idx} className="font-medium">{material}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              
+                              {/* Процесс */}
+                              {(itemDetails?.details?.process || item.details?.process) && (
+                                <div>
+                                  <h3 className="text-sm text-gray-500">Процесс изготовления:</h3>
+                                  <p className="font-medium">{itemDetails?.details?.process || item.details?.process}</p>
+                                </div>
+                              )}
+                            </>
+                          )}
+                          
+                          {/* Если деталей нет */}
+                          {!itemDetails?.details && !item.details && (
+                            <p className="text-gray-500 italic">Детали проекта не указаны</p>
+                          )}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              
+              {/* Кнопка консультации */}
+              <div className="mt-8">
+                <a 
+                  href="/contact?subject=Консультация"
+                  className="block w-full bg-primary hover:bg-primary-dark text-white text-center py-3 px-6 rounded-lg transition-colors"
                 >
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" />
-                  </svg>
-                </button>
-                <button 
-                  onClick={() => shareOnSocial('twitter')}
-                  className="p-2 text-gray-600 hover:text-blue-400 transition-colors"
-                  aria-label="Поделиться в Twitter"
-                >
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
-                  </svg>
-                </button>
-                <button 
-                  onClick={() => shareOnSocial('pinterest')}
-                  className="p-2 text-gray-600 hover:text-red-600 transition-colors"
-                  aria-label="Поделиться в Pinterest"
-                >
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9.04 21.54c.96.29 1.93.46 2.96.46a10 10 0 0 0 10-10A10 10 0 0 0 12 2 10 10 0 0 0 2 12c0 4.25 2.67 7.9 6.44 9.34-.04-.38-.12-1.1-.06-1.58l1.06-4.49s-.27-.54-.27-1.33c0-1.24.72-2.16 1.62-2.16.76 0 1.13.57 1.13 1.26 0 .77-.49 1.92-.74 2.98-.21.9.45 1.63 1.32 1.63 1.59 0 2.8-1.67 2.8-4.1 0-2.14-1.54-3.64-3.74-3.64-2.54 0-4.02 1.92-4.02 3.9 0 .77.29 1.6.67 2.05a.27.27 0 0 1 .06.26c-.07.27-.2.8-.23.89-.04.16-.12.19-.28.12-1.05-.51-1.7-2.1-1.7-3.37 0-2.76 2.01-5.3 5.78-5.3 3.04 0 5.4 2.17 5.4 5.07 0 3.02-1.9 5.46-4.54 5.46-.89 0-1.72-.47-2.01-1.02l-.54 2.07c-.2.78-.74 1.78-1.1 2.38z" />
-                  </svg>
-                </button>
+                  Получить консультацию
+                </a>
               </div>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
-      )}
+      </motion.div>
     </AnimatePresence>
   );
 };

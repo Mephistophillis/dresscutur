@@ -1,6 +1,11 @@
 ---
 description: 
 globs: 
+alwaysApply: false
+---
+---
+description: 
+globs: 
 alwaysApply: true
 ---
 # Сайт для ателье DressCutur
@@ -10,6 +15,7 @@ alwaysApply: true
 ```
 dresscutur/
 ├── app/
+│   ├── actions/             # Серверные экшены (используем вместо api routes)
 │   ├── (routes)/
 │   │   ├── page.js          # Главная страница
 │   │   └── layout.js        # Общий лейаут
@@ -33,6 +39,8 @@ dresscutur/
 ├── next.config.js           # Конфиг Next.js
 └── package.json             # Зависимости
 ```
+Алиасы:
+Вместо "@/" используется "~/"
 
 ## 2. Стратегия анимаций 
 

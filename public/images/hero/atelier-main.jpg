@@ -1,0 +1,57 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Градиентный фон -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8f9fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e9ecef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a0522d;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Фон -->
+  <rect width="800" height="600" fill="url(#bgGradient)"/>
+  
+  <!-- Рабочий стол портного -->
+  <rect x="50" y="400" width="700" height="120" fill="#d4a574" stroke="#b8956b" stroke-width="2"/>
+  
+  <!-- Швейная машинка -->
+  <rect x="150" y="350" width="120" height="80" fill="#2c3e50" rx="5"/>
+  <rect x="160" y="360" width="100" height="60" fill="#34495e" rx="3"/>
+  <circle cx="200" cy="380" r="15" fill="#95a5a6"/>
+  <circle cx="230" cy="380" r="8" fill="#bdc3c7"/>
+  
+  <!-- Манекен -->
+  <ellipse cx="600" cy="200" rx="60" ry="80" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  <rect x="580" y="280" width="40" height="120" fill="#6c757d"/>
+  <circle cx="600" cy="320" r="20" fill="#495057"/>
+  
+  <!-- Ткани -->
+  <rect x="300" y="200" width="200" height="150" fill="#dc3545" opacity="0.7" rx="10"/>
+  <rect x="320" y="220" width="160" height="110" fill="#007bff" opacity="0.6" rx="10"/>
+  <rect x="340" y="240" width="120" height="70" fill="#28a745" opacity="0.5" rx="10"/>
+  
+  <!-- Инструменты -->
+  <line x1="400" y1="450" x2="450" y2="450" stroke="#6c757d" stroke-width="3" stroke-linecap="round"/>
+  <line x1="470" y1="440" x2="520" y2="460" stroke="#6c757d" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="550" cy="450" r="8" fill="#ffc107"/>
+  
+  <!-- Окна с естественным светом -->
+  <rect x="50" y="50" width="150" height="200" fill="#87ceeb" opacity="0.3" stroke="#4682b4" stroke-width="2"/>
+  <rect x="250" y="50" width="150" height="200" fill="#87ceeb" opacity="0.3" stroke="#4682b4" stroke-width="2"/>
+  
+  <!-- Название -->
+  <text x="400" y="100" text-anchor="middle" font-family="serif" font-size="32" font-weight="bold" fill="url(#primaryGradient)">
+    DressCutur
+  </text>
+  <text x="400" y="130" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#6c757d">
+    Ателье индивидуального пошива
+  </text>
+  
+  <!-- Декоративные элементы -->
+  <circle cx="100" cy="500" r="20" fill="#ffc107" opacity="0.5"/>
+  <circle cx="700" cy="100" r="25" fill="#dc3545" opacity="0.4"/>
+  <circle cx="750" cy="300" r="15" fill="#28a745" opacity="0.6"/>
+</svg> 

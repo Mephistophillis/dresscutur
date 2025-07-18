@@ -1,67 +1,13 @@
+'use client';
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GalleryImage, { GalleryImageType } from './GalleryImage';
 import GalleryModal from './GalleryModal';
 
-// Sample gallery images with placeholder URLs
-const galleryImages: GalleryImageType[] = [
-  {
-    id: 1,
-    src: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=1000',
-    alt: 'Свадебное платье',
-    category: 'wedding',
-    description: 'Эксклюзивное свадебное платье ручной работы'
-  },
-  {
-    id: 2,
-    src: 'https://images.unsplash.com/photo-1593032465175-481ac7f401f0?q=80&w=1000',
-    alt: 'Мужской костюм',
-    category: 'suits',
-    description: 'Классический мужской костюм из итальянской шерсти'
-  },
-  {
-    id: 3,
-    src: 'https://images.unsplash.com/photo-1566174053879-31528523f8c6?q=80&w=1000',
-    alt: 'Вечернее платье',
-    category: 'evening',
-    description: 'Элегантное вечернее платье с ручной вышивкой'
-  },
-  {
-    id: 4,
-    src: 'https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?q=80&w=1000',
-    alt: 'Женское пальто',
-    category: 'outerwear',
-    description: 'Стильное женское пальто из кашемира'
-  },
-  {
-    id: 5,
-    src: 'https://images.unsplash.com/photo-1519238360530-d5035e8c3260?q=80&w=1000',
-    alt: 'Детское платье',
-    category: 'children',
-    description: 'Нарядное детское платье для особых случаев'
-  },
-  {
-    id: 6,
-    src: 'https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?q=80&w=1000',
-    alt: 'Деловое платье',
-    category: 'business',
-    description: 'Деловое платье-футляр для современной женщины'
-  },
-  {
-    id: 7,
-    src: 'https://images.unsplash.com/photo-1603252109303-2751441dd157?q=80&w=1000',
-    alt: 'Мужская рубашка',
-    category: 'casual',
-    description: 'Повседневная мужская рубашка из хлопка'
-  },
-  {
-    id: 8,
-    src: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=1000',
-    alt: 'Платье для выпускного',
-    category: 'evening',
-    description: 'Яркое платье для выпускного вечера'
-  }
-];
+interface GalleryProps {
+  galleryItems: GalleryImageType[];
+}
 
 const categories = [
   { id: 'all', name: 'Все работы' },
@@ -84,10 +30,12 @@ const containerVariants = {
   }
 };
 
-const Gallery = () => {
+const Gallery = ({ galleryItems }: GalleryProps) => {
+  const [galleryImages] = useState<GalleryImageType[]>(galleryItems);
   const [activeCategory, setActiveCategory] = useState('all');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<GalleryImageType | null>(null);
+  const [isLoading] = useState(false);
   
   // Get filtered images based on active category
   const filteredImages = activeCategory === 'all' 
@@ -102,6 +50,28 @@ const Gallery = () => {
   const closeModal = () => {
     setModalOpen(false);
   };
+
+  if (isLoading) {
+    return (
+      <section id="gallery" className="py-24 bg-gray-50">
+        <div className="container mx-auto px-4 text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto mb-8"></div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="aspect-square bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (galleryImages.length === 0) {
+    return null;
+  }
 
   return (
     <section id="gallery" className="py-24 bg-gray-50">
@@ -166,9 +136,9 @@ const Gallery = () => {
         )}
 
         <div className="mt-16 text-center">
-          <button className="bg-black text-white py-3 px-8 rounded-md hover:bg-opacity-80 transition-all">
+          <a href="/contact" className="bg-black text-white py-3 px-8 rounded-md hover:bg-opacity-80 transition-all inline-block">
             Заказать индивидуальный пошив
-          </button>
+          </a>
         </div>
 
         {/* Modal */}

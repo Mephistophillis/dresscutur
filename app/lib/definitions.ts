@@ -31,7 +31,7 @@ export interface Fabric {
   purpose: string[];
   colors: string[];
   price: number | null;
-  image: string;
+  image: string | null;
   properties: string[];
   recommendations: string[];
   isActive: boolean;
@@ -43,7 +43,10 @@ export interface Fabric {
     care: string[];
     origin: string | null;
     description: string | null;
-  };
+  } | null;
+  gallery?: FabricGallery[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export type FabricDetails = {
@@ -66,11 +69,14 @@ export type FabricGallery = {
 
 export type GalleryItem = {
   id: string;
-  src: string;
-  alt: string;
+  src?: string;
+  alt?: string;
+  imageSrc?: string;
+  title?: string;
   category: string;
   description: string;
-  isNew: boolean;
+  isNew?: boolean;
+  isFeatured?: boolean;
   order: number;
   isActive: boolean;
   createdAt: Date;
@@ -129,8 +135,8 @@ export type FAQ = {
   title?: string | null;
   question: string;
   answer: string;
-  helpful: number;
-  notHelpful: number;
+  likes: number;
+  dislikes: number;
   isActive: boolean;
   order: number;
   createdAt: Date;

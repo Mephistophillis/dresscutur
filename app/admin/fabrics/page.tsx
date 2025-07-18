@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getFabrics } from '~/app/actions/admin/fabrics';
+import { getFabrics, deleteFabric, toggleFabricActive } from '~/app/actions/admin/fabrics-prisma';
 import { Fabric } from '~/app/lib/definitions';
 
 export default function FabricsPage() {
@@ -36,6 +36,42 @@ export default function FabricsPage() {
       lining: 'Подкладочная'
     };
     return categories[category as keyof typeof categories] || category;
+  };
+
+  // Функция для удаления ткани
+  const handleDelete = async (id: string) => {
+    if (confirm('Вы уверены, что хотите удалить эту ткань?')) {
+      try {
+        const result = await deleteFabric(id);
+        if (result.success) {
+          // Обновляем список тканей, удаляя удаленную
+          setFabrics((prevFabrics) => prevFabrics.filter((fabric) => fabric.id !== id));
+        } else {
+          setError(result.error || 'Не удалось удалить ткань');
+        }
+      } catch (err) {
+        console.error('Failed to delete fabric:', err);
+        setError('Ошибка при удалении ткани');
+      }
+    }
+  };
+
+  // Функция для переключения активности ткани
+  const handleToggleActive = async (id: string, currentActive: boolean) => {
+    try {
+      const result = await toggleFabricActive(id);
+      if (result.success) {
+        // Обновляем список тканей, изменяя статус активности
+        setFabrics((prevFabrics) => prevFabrics.map((fabric) => 
+          fabric.id === id ? { ...fabric, isActive: !currentActive } : fabric
+        ));
+      } else {
+        setError(result.error || 'Не удалось изменить статус ткани');
+      }
+    } catch (err) {
+      console.error('Failed to toggle fabric active status:', err);
+      setError('Ошибка при изменении статуса ткани');
+    }
   };
 
   return (
@@ -85,54 +121,63 @@ export default function FabricsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {fabrics.map((fabric) => (
-                  <tr key={fabric.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{fabric.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{getCategoryName(fabric.category)}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{fabric.price ? `${fabric.price}` : '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          fabric.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {fabric.isActive ? 'Активна' : 'Неактивна'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{fabric.order}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-3">
-                        <Link
-                          href={`/admin/fabrics/${fabric.id}`}
-                          className="text-blue-600 hover:text-blue-900"
+                {fabrics.length > 0 ? (
+                  fabrics.map((fabric) => (
+                    <tr key={fabric.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{fabric.name}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{getCategoryName(fabric.category)}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{fabric.price ? `${fabric.price}` : '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            fabric.isActive
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
                         >
-                          Редактировать
-                        </Link>
-                        <button 
-                          className="text-red-600 hover:text-red-900"
-                          onClick={() => {
-                            if (confirm('Вы уверены, что хотите удалить эту ткань?')) {
-                              // В будущем здесь будет вызов API для удаления
-                              // deleteFabric(fabric.id);
-                            }
-                          }}
-                        >
-                          Удалить
-                        </button>
-                      </div>
+                          {fabric.isActive ? 'Активна' : 'Неактивна'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{fabric.order}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end space-x-3">
+                          <Link
+                            href={`/admin/fabrics/${fabric.id}`}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            Редактировать
+                          </Link>
+                          <button 
+                            className="text-blue-600 hover:text-blue-900"
+                            onClick={() => handleToggleActive(fabric.id, fabric.isActive)}
+                          >
+                            {fabric.isActive ? 'Деактивировать' : 'Активировать'}
+                          </button>
+                          <button 
+                            className="text-red-600 hover:text-red-900"
+                            onClick={() => handleDelete(fabric.id)}
+                          >
+                            Удалить
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                      Ткани не найдены
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

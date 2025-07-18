@@ -163,12 +163,12 @@ export default function Header() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="flex items-center"
         >
-          <button 
-            onClick={openContactModal}
+          <Link 
+            href="/booking"
             className="hidden md:block btn-primary"
           >
             Записаться
-          </button>
+          </Link>
           
           {/* Mobile Menu Button */}
           <motion.button 

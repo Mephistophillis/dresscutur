@@ -35,10 +35,10 @@ export function EmptyState({
         <div className="mt-6">
           {actionHref ? (
             <Link href={actionHref} passHref>
-              <Button variant="primary">{actionText}</Button>
+              <Button variant="default">{actionText}</Button>
             </Link>
           ) : (
-            <Button variant="primary" onClick={onAction}>
+            <Button variant="default" onClick={onAction}>
               {actionText}
             </Button>
           )}

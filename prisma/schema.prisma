@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,25 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Модель для аутентификации пользователей админки
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  password      String
-  role          Role      @default(EDITOR)
-  isActive      Boolean   @default(true)
-  lastLogin     DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id        String    @id @default(cuid())
+  name      String?
+  email     String    @unique
+  password  String
+  role      Role      @default(EDITOR)
+  isActive  Boolean   @default(true)
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
-enum Role {
-  ADMIN
-  EDITOR
-}
-
-// Модель для услуг
 model Service {
   id          String   @id @default(cuid())
   title       String
@@ -39,11 +29,15 @@ model Service {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  advantages  String[]
+  timeline    Json?
+
+  @@index([isActive])
+  @@index([order])
 }
 
-// Модель для тканей
 model Fabric {
-  id              String           @id @default(cuid())
+  id              String          @id @default(cuid())
   name            String
   description     String
   image           String?
@@ -52,70 +46,70 @@ model Fabric {
   colors          String[]
   price           Float?
   properties      String[]
-  isActive        Boolean          @default(true)
-  order           Int              @default(0)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  isActive        Boolean         @default(true)
+  order           Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  recommendations String[]
   details         FabricDetails?
   gallery         FabricGallery[]
-  recommendations String[]
+
+  @@index([category])
+  @@index([isActive])
+  @@index([order])
 }
 
 model FabricDetails {
   id          String   @id @default(cuid())
   fabricId    String   @unique
-  fabric      Fabric   @relation(fields: [fabricId], references: [id], onDelete: Cascade)
   composition String?
   width       Float?
   weight      Float?
   care        String[]
   origin      String?
   description String?
+  fabric      Fabric   @relation(fields: [fabricId], references: [id], onDelete: Cascade)
 }
 
 model FabricGallery {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   fabricId String
-  fabric   Fabric @relation(fields: [fabricId], references: [id], onDelete: Cascade)
   url      String
   alt      String?
+  fabric   Fabric  @relation(fields: [fabricId], references: [id], onDelete: Cascade)
 }
 
-// Модель для работ в галерее
 model GalleryItem {
-  id            String                 @id @default(cuid())
+  id            String                @id @default(cuid())
   src           String
   alt           String
   category      String
   description   String
-  isNew         Boolean                @default(false)
-  order         Int                    @default(0)
-  isActive      Boolean                @default(true)
-  createdAt     DateTime               @default(now())
-  updatedAt     DateTime               @updatedAt
-  details       GalleryItemDetails?
+  isNew         Boolean               @default(false)
+  order         Int                   @default(0)
+  isActive      Boolean               @default(true)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  client        String?
+  date          String?
+  materials     String[]
+  process       String?
   relatedImages GalleryRelatedImage[]
-}
 
-model GalleryItemDetails {
-  id           String      @id @default(cuid())
-  galleryItemId String      @unique
-  galleryItem  GalleryItem @relation(fields: [galleryItemId], references: [id], onDelete: Cascade)
-  client       String?
-  materials    String[]
-  date         String?
-  process      String?
+  @@index([category])
+  @@index([isActive])
+  @@index([order])
+  @@index([isNew])
 }
 
 model GalleryRelatedImage {
   id            String      @id @default(cuid())
   galleryItemId String
-  galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id], onDelete: Cascade)
   src           String
   alt           String?
+  galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id], onDelete: Cascade)
 }
 
-// Модель для отзывов
 model Testimonial {
   id         String   @id @default(cuid())
   name       String
@@ -130,9 +124,11 @@ model Testimonial {
   order      Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([order])
 }
 
-// Модель для цен
 model Price {
   id          String   @id @default(cuid())
   service     String
@@ -145,22 +141,20 @@ model Price {
   updatedAt   DateTime @updatedAt
 }
 
-// Модель для FAQ
 model FAQ {
-  id         String   @id @default(cuid())
-  category   String
-  title      String?
-  question   String
-  answer     String
-  helpful    Int      @default(0)
-  notHelpful Int      @default(0)
-  isActive   Boolean  @default(true)
-  order      Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  category  String
+  title     String?
+  question  String
+  answer    String
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  dislikes  Int      @default(0)
+  likes     Int      @default(0)
 }
 
-// Модель для контактных заявок
 model Contact {
   id             String        @id @default(cuid())
   name           String
@@ -176,9 +170,78 @@ model Contact {
   updatedAt      DateTime      @updatedAt
 }
 
+model Workshop {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  description String?
+  directions  String?
+  coordinates Json?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Settings {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  category    String   @default("general")
+  description String?
+  type        String   @default("string")
+
+  @@index([category])
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  position    String
+  bio         String
+  photo       String
+  socialLinks Json?
+  location    String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  startDate     DateTime
+  endDate       DateTime
+  category      String
+  clientName    String?
+  clientContact String?
+  clientEmail   String?
+  status        String
+  isAllDay      Boolean  @default(false)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  color         String   @default("#3b82f6")
+  location      String?
+  priority      Int      @default(1)
+
+  @@index([startDate])
+  @@index([status])
+  @@index([category])
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
 enum ContactStatus {
   NEW
   IN_PROGRESS
   COMPLETED
   CANCELED
-} 
+}

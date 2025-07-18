@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { CONTACTS } from '~/app/constants/contacts';
 
 // FAQ data with categories
 const faqData = [
@@ -385,7 +386,7 @@ export default function FAQ() {
                 Задать вопрос через форму
               </a>
               <a
-                href="tel:+74951234567"
+                href={CONTACTS.links.phone}
                 className="px-5 py-2 bg-white border border-primary text-primary rounded-md hover:bg-gray-50 transition-colors"
               >
                 Позвонить нам

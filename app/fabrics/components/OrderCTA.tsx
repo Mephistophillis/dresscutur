@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { CONTACTS } from '~/app/constants/contacts';
 
 const OrderCTA = () => {
   const [formData, setFormData] = useState({
@@ -201,8 +202,8 @@ const OrderCTA = () => {
           
           <motion.div className="mt-12 text-center" variants={itemVariants}>
             <p className="text-gray-300">
-              У вас есть вопросы? Свяжитесь с нами по телефону <a href="tel:+71234567890" className="text-white underline hover:text-accent transition-colors">+7 (123) 456-78-90</a> или 
-              напишите на почту <a href="mailto:info@dresscutur.ru" className="text-white underline hover:text-accent transition-colors">info@dresscutur.ru</a>
+              У вас есть вопросы? Свяжитесь с нами по телефону <a href={CONTACTS.links.phone} className="text-white underline hover:text-accent transition-colors">{CONTACTS.phone}</a> или 
+              напишите на почту <a href={CONTACTS.links.email} className="text-white underline hover:text-accent transition-colors">{CONTACTS.email}</a>
             </p>
           </motion.div>
         </motion.div>

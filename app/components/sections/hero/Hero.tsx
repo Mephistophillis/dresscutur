@@ -86,8 +86,12 @@ export default function Hero() {
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.6, delay: 1.4 }}
               />
-              <div className="relative z-10 bg-white rounded-lg shadow-xl overflow-hidden aspect-[4/3] flex items-center justify-center w-full max-w-xl">
-                <span className="text-gray-400">Изображение ателье</span>
+              <div className="relative z-10 bg-white rounded-lg shadow-xl overflow-hidden aspect-[4/3] w-full max-w-xl">
+                <img 
+                  src="/images/hero/atelier-main.jpg" 
+                  alt="Ателье DressCutur - рабочее пространство"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </motion.div>

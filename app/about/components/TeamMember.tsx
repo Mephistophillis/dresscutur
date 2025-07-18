@@ -15,7 +15,7 @@ interface TeamMemberProps {
   role: string;
   image: string;
   description: string;
-  specialization: string[];
+  specialization?: string[];
   socialLinks?: SocialLink[];
 }
 
@@ -24,7 +24,7 @@ export default function TeamMember({
   role, 
   image, 
   description, 
-  specialization,
+  specialization = [],
   socialLinks 
 }: TeamMemberProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -52,16 +52,18 @@ export default function TeamMember({
       </div>
 
       <div className="p-6">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {specialization.map((skill, index) => (
-            <span 
-              key={index} 
-              className="inline-block px-3 py-1 bg-secondary text-dark text-sm rounded-full"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
+        {specialization.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {specialization.map((skill, index) => (
+              <span 
+                key={index} 
+                className="inline-block px-3 py-1 bg-secondary text-dark text-sm rounded-full"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96' : 'max-h-24'}`}>
           <p className="text-dark/80">{description}</p>

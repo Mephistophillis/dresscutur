@@ -1,138 +1,101 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface SearchBarProps {
-  onSearch: (query: string) => void;
-}
-
-// Sample suggestions (these would come from your actual gallery items)
-const searchSuggestions = [
-  'Свадебное платье',
-  'Вечернее платье',
-  'Мужской костюм',
-  'Шелк',
-  'Кашемир',
-  'Пальто',
-  'Детское платье',
-];
-
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
-  const [query, setQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+const SearchBar: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const [isDelayPassed, setIsDelayPassed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const suggestionsRef = useRef<HTMLDivElement>(null);
 
+  // Отправляем событие поиска
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    
+    // Создаем и диспатчим кастомное событие
+    const event = new CustomEvent('search', { detail: value });
+    document.dispatchEvent(event);
+  };
+
+  // Обработка ввода с debounce
   useEffect(() => {
-    // Filter suggestions based on input
-    if (query.length > 0) {
-      const filtered = searchSuggestions.filter(
-        suggestion => suggestion.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredSuggestions(filtered);
+    const timer = setTimeout(() => {
+      handleSearch(searchTerm);
+    }, 300); // debounce в 300мс
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Для анимации фокуса
+  useEffect(() => {
+    if (isFocused) {
+      const timeout = setTimeout(() => {
+        setIsDelayPassed(true);
+      }, 100);
+      return () => clearTimeout(timeout);
     } else {
-      setFilteredSuggestions([]);
+      setIsDelayPassed(false);
     }
-  }, [query]);
+  }, [isFocused]);
 
-  // Handle clicks outside to close suggestions
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        suggestionsRef.current && 
-        !suggestionsRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setQuery(value);
-    setShowSuggestions(value.length > 0);
-    onSearch(value);
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setQuery(suggestion);
-    onSearch(suggestion);
-    setShowSuggestions(false);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const handleClear = () => {
-    setQuery('');
-    onSearch('');
+  const handleReset = () => {
+    setSearchTerm('');
+    handleSearch('');
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
 
   return (
-    <div className="relative w-full md:w-72">
-      <div className="relative">
+    <div className="relative w-full md:w-auto">
+      <div className={`flex items-center border rounded-full overflow-hidden transition-all duration-300 ${
+        isFocused ? 'border-primary shadow-md ring-2 ring-primary/20' : 'border-gray-300'
+      }`}>
+        <div className="pl-4 pr-2 text-gray-500">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        
         <input
-          ref={inputRef}
           type="text"
-          value={query}
-          onChange={handleInputChange}
-          onFocus={() => setShowSuggestions(query.length > 0)}
-          placeholder="Поиск по работам..."
-          className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          className="py-2 px-2 w-full md:w-60 focus:outline-none placeholder-gray-500"
+          placeholder="Поиск работ..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          ref={inputRef}
         />
         
-        {/* Search or Clear icon */}
-        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-          {query ? (
-            <button 
-              onClick={handleClear}
-              aria-label="Очистить поиск"
-              className="text-gray-500 hover:text-gray-700"
+        <AnimatePresence>
+          {searchTerm && (
+            <motion.button
+              className="px-3 text-gray-500 hover:text-gray-700 transition-colors"
+              onClick={handleReset}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
-            </button>
-          ) : (
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            </motion.button>
           )}
-        </div>
+        </AnimatePresence>
       </div>
       
-      {/* Suggestions dropdown */}
+      {/* Suggestions (could be implemented in future) */}
       <AnimatePresence>
-        {showSuggestions && filteredSuggestions.length > 0 && (
+        {isFocused && isDelayPassed && searchTerm.length > 1 && (
           <motion.div
-            ref={suggestionsRef}
-            className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+            className="absolute mt-2 w-full bg-white shadow-lg rounded-lg overflow-hidden z-10 border border-gray-200"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
           >
-            {filteredSuggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-              >
-                {suggestion}
-              </button>
-            ))}
+            {/* Placeholder for future search suggestions */}
           </motion.div>
         )}
       </AnimatePresence>

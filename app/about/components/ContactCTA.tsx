@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { CONTACTS } from '~/app/constants/contacts';
 
 export default function ContactCTA() {
   const controls = useAnimation();
@@ -83,10 +84,10 @@ export default function ContactCTA() {
             </Link>
             
             <Link 
-              href="tel:+71234567890" 
+              href={CONTACTS.links.phone} 
               className="border-2 border-white text-white px-8 py-4 rounded-md text-lg font-semibold transition-all duration-300 hover:bg-white hover:text-primary focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary"
             >
-              +7 (123) 456-78-90
+              {CONTACTS.phone}
             </Link>
           </motion.div>
           
@@ -95,7 +96,9 @@ export default function ContactCTA() {
             className="mt-12 flex justify-center gap-6"
           >
             <a 
-              href="#" 
+              href={CONTACTS.social.instagram} 
+              target="_blank" 
+              rel="noopener noreferrer"
               className="text-white hover:text-white/80 transition-colors duration-300"
               aria-label="Instagram"
             >
@@ -104,7 +107,9 @@ export default function ContactCTA() {
               </svg>
             </a>
             <a 
-              href="#" 
+              href={CONTACTS.social.facebook} 
+              target="_blank" 
+              rel="noopener noreferrer"
               className="text-white hover:text-white/80 transition-colors duration-300"
               aria-label="Facebook"
             >
@@ -113,7 +118,9 @@ export default function ContactCTA() {
               </svg>
             </a>
             <a 
-              href="#" 
+              href={CONTACTS.social.whatsapp} 
+              target="_blank" 
+              rel="noopener noreferrer"
               className="text-white hover:text-white/80 transition-colors duration-300"
               aria-label="WhatsApp"
             >

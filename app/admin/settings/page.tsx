@@ -59,9 +59,9 @@ const mockSettings: Settings = {
     siteName: 'DressCutur Ателье',
     siteTagline: 'Индивидуальный пошив одежды и ремонт',
     contactEmail: 'info@dresscutur.ru',
-    contactPhone: '+7 (999) 123-45-67',
-    address: 'г. Москва, ул. Примерная, д. 123',
-    workingHours: 'Пн-Пт: 10:00-19:00, Сб: 11:00-16:00',
+    contactPhone: '+7 (495) 123-45-67',
+    address: 'г. Москва, ул. Тверская, д. 15, стр. 1',
+    workingHours: 'Пн-Пт: 10:00-20:00, Сб: 10:00-18:00',
   },
   seo: {
     metaTitle: 'DressCutur - Ателье индивидуального пошива одежды',
@@ -245,7 +245,7 @@ export default function SettingsPage() {
               />
             </CardContent>
             <CardFooter className="justify-end">
-              <Button variant="primary" onClick={handleSaveSettings}>
+              <Button variant="default" onClick={handleSaveSettings}>
                 Сохранить
               </Button>
             </CardFooter>
@@ -302,7 +302,7 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
               <CardFooter className="justify-end">
-                <Button variant="primary" onClick={handleSaveSettings}>
+                <Button variant="default" onClick={handleSaveSettings}>
                   Сохранить
                 </Button>
               </CardFooter>
@@ -348,7 +348,7 @@ export default function SettingsPage() {
                 ))}
               </CardContent>
               <CardFooter className="justify-end">
-                <Button variant="primary" onClick={handleSaveSettings}>
+                <Button variant="default" onClick={handleSaveSettings}>
                   Сохранить
                 </Button>
               </CardFooter>
@@ -392,7 +392,7 @@ export default function SettingsPage() {
               </div>
             </CardContent>
             <CardFooter className="justify-end">
-              <Button variant="primary" onClick={handleSaveSettings}>
+              <Button variant="default" onClick={handleSaveSettings}>
                 Сохранить
               </Button>
             </CardFooter>
@@ -453,7 +453,7 @@ export default function SettingsPage() {
               />
             </CardContent>
             <CardFooter className="justify-end">
-              <Button variant="primary" onClick={handleSaveSettings}>
+              <Button variant="default" onClick={handleSaveSettings}>
                 Сохранить
               </Button>
             </CardFooter>

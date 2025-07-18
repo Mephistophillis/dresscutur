@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { getActiveTestimonials } from '~/app/actions/public/testimonials';
+import { Testimonial } from '~/app/lib/definitions';
 
 // Star rating component
 const StarRating = ({ rating }: { rating: number }) => {
@@ -30,7 +32,7 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
-export default function TestimonialsSection() {
+function TestimonialsSection() {
   const controls = useAnimation();
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -39,6 +41,32 @@ export default function TestimonialsSection() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure component is mounted before showing dynamic content
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Fetch testimonials from database
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const data = await getActiveTestimonials();
+        setTestimonials(data);
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (mounted) {
+      fetchTestimonials();
+    }
+  }, [mounted]);
 
   useEffect(() => {
     if (inView) {
@@ -88,55 +116,6 @@ export default function TestimonialsSection() {
     },
   };
 
-  // Testimonials data
-  const testimonials = [
-    {
-      id: 1,
-      name: 'Елена Смирнова',
-      image: '/images/about/testimonial-1.jpg',
-      text: 'Потрясающее ателье! Уже второй раз заказываю у них пошив вечернего платья и всегда в восторге от результата. Внимание к деталям и качество на высшем уровне. С DressCutur я всегда уверена, что буду выглядеть безупречно на любом мероприятии.',
-      rating: 5,
-      date: '15 марта 2023',
-      category: 'individual',
-    },
-    {
-      id: 2,
-      name: 'Александр Петров',
-      image: '/images/about/testimonial-2.jpg',
-      text: 'Отличный сервис и профессиональный подход. Заказывал пошив костюма для свадьбы, и результат превзошел все ожидания. Особенно порадовала точность в снятии мерок и внимание к моим пожеланиям. Теперь я постоянный клиент.',
-      rating: 5,
-      date: '2 февраля 2023',
-      category: 'individual',
-    },
-    {
-      id: 3,
-      name: 'Мария Иванова',
-      image: '/images/about/testimonial-3.jpg',
-      text: 'Обратилась в ателье для ремонта любимого пальто, которое казалось безнадежно испорченным. Мастера DressCutur сотворили настоящее чудо – пальто выглядит как новое! Спасибо за спасение моей любимой вещи.',
-      rating: 5,
-      date: '10 января 2023',
-      category: 'repair',
-    },
-    {
-      id: 4,
-      name: 'Ирина Козлова',
-      image: '/images/about/testimonial-4.jpg',
-      text: 'Заказывала пошив комплекта штор для гостиной. Результат превзошел все ожидания! Идеальное исполнение, точное соответствие интерьеру и потрясающее качество ткани. Спасибо команде DressCutur за профессионализм!',
-      rating: 5,
-      date: '5 декабря 2022',
-      category: 'home',
-    },
-    {
-      id: 5,
-      name: 'Дмитрий Соколов',
-      image: '/images/about/testimonial-5.jpg',
-      text: 'Впервые обратился в ателье для пошива рубашек, и теперь не представляю, как можно носить готовую одежду. Идеальная посадка, качественные ткани и внимание к мелочам делают каждую рубашку особенной. Всем рекомендую!',
-      rating: 5,
-      date: '20 ноября 2022',
-      category: 'individual',
-    },
-  ];
-
   // Filter options
   const filterOptions = [
     { value: 'all', label: 'Все отзывы' },
@@ -167,6 +146,59 @@ export default function TestimonialsSection() {
   useEffect(() => {
     setCurrentIndex(0);
   }, [activeFilter]);
+
+  // Format date for display (static for SSR)
+  const formatDate = (dateString: string | null | undefined, createdAt: Date) => {
+    if (!mounted) return ''; // Return empty string during SSR
+    
+    if (dateString) return dateString;
+    return new Date(createdAt).toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  // Show basic layout during SSR and initial load
+  if (!mounted || loading) {
+    return (
+      <section id="testimonials" className="py-16 md:py-24 bg-secondary/30">
+        <div className="container">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center">
+              <h2 className="section-title mx-auto mb-6">Отзывы наших клиентов</h2>
+              <p className="text-center max-w-3xl mx-auto mb-16 text-lg">
+                Мнения тех, кто уже оценил качество наших услуг и профессионализм мастеров
+              </p>
+              {mounted && (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return (
+      <section id="testimonials" className="py-16 md:py-24 bg-secondary/30">
+        <div className="container">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center">
+              <h2 className="section-title mx-auto mb-6">Отзывы наших клиентов</h2>
+              <p className="text-center max-w-3xl mx-auto mb-16 text-lg">
+                Мнения тех, кто уже оценил качество наших услуг и профессионализм мастеров
+              </p>
+              <p className="text-gray-600">Отзывы скоро появятся</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="testimonials" className="py-16 md:py-24 bg-secondary/30">
@@ -203,93 +235,136 @@ export default function TestimonialsSection() {
             ))}
           </motion.div>
 
-          {/* Testimonials carousel */}
-          <motion.div 
-            variants={itemVariants}
-            className="relative px-4 md:px-12 lg:px-24 mb-8"
-          >
-            <div className="relative w-full overflow-hidden min-h-[400px] md:min-h-[350px]">
-              <AnimatePresence initial={false} custom={direction}>
-                <motion.div
-                  key={currentIndex}
-                  custom={direction}
-                  variants={testimonialVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{
-                    x: { type: 'spring', stiffness: 300, damping: 30 },
-                    opacity: { duration: 0.2 },
-                  }}
-                  className="absolute w-full"
-                >
-                  <div className="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-4xl mx-auto">
-                    <div className="flex flex-col md:flex-row items-start gap-6">
-                      <div className="w-24 h-24 relative rounded-full overflow-hidden shrink-0 mx-auto md:mx-0">
-                        <Image
-                          src={filteredTestimonials[currentIndex].image}
-                          alt={filteredTestimonials[currentIndex].name}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 96px, 96px"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
-                          <div>
-                            <h3 className="text-xl font-semibold">{filteredTestimonials[currentIndex].name}</h3>
-                            <p className="text-gray-500 text-sm">{filteredTestimonials[currentIndex].date}</p>
+          {/* Testimonials */}
+          <motion.div variants={itemVariants} className="relative">
+            <div className="flex justify-center">
+              <div className="relative w-full max-w-4xl overflow-hidden">
+                <AnimatePresence mode="wait" custom={direction}>
+                  {filteredTestimonials.length > 0 && (
+                    <motion.div
+                      key={currentIndex}
+                      custom={direction}
+                      variants={testimonialVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={{
+                        x: { type: "spring", stiffness: 300, damping: 30 },
+                        opacity: { duration: 0.2 }
+                      }}
+                      className="w-full"
+                    >
+                      <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg">
+                        <div className="flex flex-col items-center text-center">
+                          <div className="w-20 h-20 rounded-full overflow-hidden mb-6 bg-gray-200">
+                            {filteredTestimonials[currentIndex].avatar ? (
+                              <Image
+                                src={filteredTestimonials[currentIndex].avatar!}
+                                alt={filteredTestimonials[currentIndex].name}
+                                width={80}
+                                height={80}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                                <span className="text-2xl font-semibold text-primary">
+                                  {filteredTestimonials[currentIndex].name.charAt(0)}
+                                </span>
+                              </div>
+                            )}
                           </div>
+                          
                           <StarRating rating={filteredTestimonials[currentIndex].rating} />
+                          
+                          <blockquote className="text-lg md:text-xl text-gray-700 mt-6 mb-6 leading-relaxed">
+                            &ldquo;{filteredTestimonials[currentIndex].text}&rdquo;
+                          </blockquote>
+                          
+                          <div className="text-center">
+                            <p className="font-semibold text-dark text-lg mb-1">
+                              {filteredTestimonials[currentIndex].name}
+                            </p>
+                            {filteredTestimonials[currentIndex].position && (
+                              <p className="text-gray-600 mb-2">
+                                {filteredTestimonials[currentIndex].position}
+                              </p>
+                            )}
+                            <p className="text-gray-500 text-sm">
+                              {formatDate(filteredTestimonials[currentIndex].date, filteredTestimonials[currentIndex].createdAt)}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-gray-700 italic">&quot;{filteredTestimonials[currentIndex].text}&quot;</p>
                       </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
-            {/* Navigation buttons */}
-            <button
-              className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full w-10 h-10 shadow-md flex items-center justify-center text-gray-600 hover:text-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              onClick={prevTestimonial}
-              aria-label="Предыдущий отзыв"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white rounded-full w-10 h-10 shadow-md flex items-center justify-center text-gray-600 hover:text-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              onClick={nextTestimonial}
-              aria-label="Следующий отзыв"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </motion.div>
+            {/* Navigation */}
+            {filteredTestimonials.length > 1 && (
+              <div className="flex justify-center items-center mt-8 gap-6">
+                <button
+                  onClick={prevTestimonial}
+                  className="flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-200 group"
+                  aria-label="Previous testimonial"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5 text-gray-600 group-hover:text-primary transition-colors duration-200"
+                  >
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
 
-          {/* Dots navigation */}
-          <motion.div variants={itemVariants} className="flex justify-center gap-2">
-            {filteredTestimonials.map((_, index) => (
-              <button
-                key={index}
-                className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                  currentIndex === index ? 'bg-primary' : 'bg-gray-300 hover:bg-gray-400'
-                }`}
-                onClick={() => {
-                  setDirection(index > currentIndex ? 1 : -1);
-                  setCurrentIndex(index);
-                }}
-                aria-label={`Перейти к отзыву ${index + 1}`}
-                aria-current={currentIndex === index ? 'true' : 'false'}
-              />
-            ))}
+                <div className="flex items-center gap-2">
+                  {filteredTestimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-colors duration-200 ${
+                        index === currentIndex ? 'bg-primary' : 'bg-gray-300'
+                      }`}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={nextTestimonial}
+                  className="flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-200 group"
+                  aria-label="Next testimonial"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5 text-gray-600 group-hover:text-primary transition-colors duration-200"
+                  >
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+            )}
           </motion.div>
         </motion.div>
       </div>
     </section>
   );
-} 
+}
+
+export default TestimonialsSection; 

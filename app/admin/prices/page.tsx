@@ -134,9 +134,9 @@ function PricesTable() {
 
       <div className="mt-4">
         <TablePagination
-          total={prices.length}
+          totalItems={prices.length}
           currentPage={1}
-          pageSize={10}
+          itemsPerPage={10}
           onPageChange={() => {}}
         />
       </div>
@@ -239,7 +239,7 @@ function PriceForm() {
           <Button type="button" variant="outline">
             Отмена
           </Button>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="default">
             Сохранить
           </Button>
         </div>

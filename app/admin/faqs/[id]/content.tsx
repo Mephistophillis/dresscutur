@@ -168,7 +168,7 @@ export function FaqEditForm({ id }: { id: string }) {
           <Link href="/admin/faqs">
             <Button variant="outline">Отмена</Button>
           </Link>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="default">
             {isNewItem ? 'Создать' : 'Сохранить'}
           </Button>
         </div>

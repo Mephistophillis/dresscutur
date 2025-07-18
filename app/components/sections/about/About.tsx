@@ -9,10 +9,11 @@ export default function About() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative">
             <div className="relative h-[500px] w-full overflow-hidden rounded-lg shadow-xl">
-              {/* Заменить на реальное изображение ателье */}
-              <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                <span className="text-2xl text-gray-500">Изображение ателье</span>
-              </div>
+              <img 
+                src="/images/about/atelier-workspace.jpg" 
+                alt="Рабочее пространство ателье DressCutur"
+                className="h-full w-full object-cover"
+              />
             </div>
             
             <div className="absolute -bottom-6 -right-6 w-40 h-40 bg-primary rounded-lg shadow-lg flex flex-col items-center justify-center text-white p-4">

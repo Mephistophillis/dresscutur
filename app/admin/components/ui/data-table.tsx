@@ -148,8 +148,8 @@ export function DataTable<T extends Record<string, React.ReactNode | undefined>>
       {totalPages > 1 && (
         <div className="mt-4">
           <TablePagination
-            total={totalItems}
-            pageSize={pageSize}
+            totalItems={totalItems}
+            itemsPerPage={pageSize}
             currentPage={currentPage}
             onPageChange={setCurrentPage}
           />

@@ -3,11 +3,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
-interface CategoryFilterProps {
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
-}
-
 const categories = [
   { id: 'all', name: 'Все работы' },
   { id: 'wedding', name: 'Свадебные наряды' },
@@ -19,12 +14,23 @@ const categories = [
   { id: 'special', name: 'Особые проекты' },
 ];
 
-const CategoryFilter: React.FC<CategoryFilterProps> = ({ selectedCategory, onCategoryChange }) => {
+const CategoryFilter: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [isExpanded, setIsExpanded] = useState(false);
   
   // For mobile: toggle dropdown
   const toggleExpand = () => {
     setIsExpanded(prev => !prev);
+  };
+  
+  // Отправляем событие наверх
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    // Создаем и диспатчим кастомное событие
+    const event = new CustomEvent('categoryChange', { detail: categoryId });
+    document.dispatchEvent(event);
+    // Закрываем мобильное меню, если открыто
+    setIsExpanded(false);
   };
   
   return (
@@ -56,10 +62,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ selectedCategory, onCat
             {categories.map(category => (
               <button
                 key={category.id}
-                onClick={() => {
-                  onCategoryChange(category.id);
-                  setIsExpanded(false);
-                }}
+                onClick={() => handleCategoryChange(category.id)}
                 className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
                   selectedCategory === category.id ? 'bg-gray-100 font-medium' : ''
                 }`}
@@ -76,7 +79,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ selectedCategory, onCat
         {categories.map(category => (
           <motion.button
             key={category.id}
-            onClick={() => onCategoryChange(category.id)}
+            onClick={() => handleCategoryChange(category.id)}
             className={`px-4 py-2 rounded-full text-sm transition-all ${
               selectedCategory === category.id 
                 ? 'bg-primary text-white' 

@@ -3,14 +3,9 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { PublicGalleryItem } from '~/app/actions/public/gallery';
 
-export interface GalleryItemType {
-  id: number;
-  src: string;
-  alt: string;
-  category: string;
-  description: string;
-  isNew?: boolean;
+export interface GalleryItemType extends PublicGalleryItem {
   details?: {
     client?: string;
     materials?: string[];
