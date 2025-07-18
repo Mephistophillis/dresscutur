@@ -35,7 +35,7 @@ async function updatePasswords() {
       
       // Определяем пароль по умолчанию на основе роли
       if (user.role === 'ADMIN') {
-        plainPassword = 'admin123';
+        plainPassword = 'Cet337unip0@#';
       } else if (user.role === 'EDITOR') {
         plainPassword = 'editor123';
       } else {

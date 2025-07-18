@@ -27,7 +27,6 @@ export default function AuthPage() {
       }
     } catch (err) {
       setError('Ошибка входа. Пожалуйста, проверьте введенные данные.');
-      console.log(err);
     } finally {
       setIsLoading(false);
     }

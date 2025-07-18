@@ -34,11 +34,11 @@ async function main() {
   console.log('База данных очищена. Начинаем добавлять данные...');
   
   // Создаем администратора
-  const adminPassword = await hashPassword('admin123');
+  const adminPassword = await hashPassword('Cet337unip0@#');
   const admin = await prisma.user.create({
     data: {
-      name: 'Администратор',
-      email: 'admin@dresscutur.ru',
+      name: 'Главный администратор',
+      email: 'dresscutur@mail.ru',
       password: adminPassword,
       role: 'ADMIN',
       isActive: true,

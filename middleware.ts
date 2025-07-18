@@ -10,7 +10,6 @@ export function middleware(request: NextRequest) {
   // Проверяем, является ли текущий маршрут частью админки
   if (pathname.startsWith('/admin') && !publicRoutes.includes(pathname)) {
     const sessionToken = request.cookies.get('admin-session');
-    console.log(sessionToken);
     // Если нет токена сессии, перенаправляем на страницу входа
     if (!sessionToken) {
       const url = new URL('/admin/auth', request.url);

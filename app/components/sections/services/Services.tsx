@@ -14,8 +14,6 @@ export default function Services({ services }: ServicesProps) {
   const [isLoading] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
-  console.log(services);
-
   // Устанавливаем первый сервис как активный при первом рендере
   useEffect(() => {
     if (services.length > 0) {
