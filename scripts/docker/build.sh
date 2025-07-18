@@ -31,6 +31,9 @@ docker build \
     --platform linux/amd64 \
     --build-arg NODE_ENV=production \
     --build-arg NEXT_TELEMETRY_DISABLED=1 \
+    --build-arg PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 \
+    --build-arg PRISMA_SKIP_POSTINSTALL_GENERATE=1 \
+    --network=host \
     -t "${IMAGE_TAG}" \
     -f "${DOCKERFILE}" \
     .

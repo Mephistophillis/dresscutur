@@ -253,6 +253,45 @@ docker-compose -f docker-compose.prod.yml logs -f nginx
 
 ## 🚦 Troubleshooting
 
+### Проблемы с Prisma
+
+**Проблема**: Ошибка "Failed to fetch sha256 checksum" при сборке
+```bash
+# Быстрое решение
+./scripts/docker/fix-prisma.sh
+
+# Или диагностика
+./scripts/docker/fix-prisma.sh diagnose
+
+# Или показать решения
+./scripts/docker/fix-prisma.sh solutions
+```
+
+**Проблема**: Prisma не может скачать engines
+```bash
+# Сборка с альтернативным Dockerfile
+./scripts/docker/build.sh v1.0.0 Dockerfile.offline
+
+# Или с Debian вместо Alpine
+./scripts/docker/build.sh v1.0.0 Dockerfile.debian
+
+# Или с переменными окружения
+export PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+export PRISMA_SKIP_POSTINSTALL_GENERATE=1
+./scripts/docker/build.sh v1.0.0
+```
+
+**Проблема**: Корпоративный proxy блокирует доступ
+```bash
+# Настройка proxy
+export HTTP_PROXY=http://proxy.company.com:8080
+export HTTPS_PROXY=http://proxy.company.com:8080
+export NO_PROXY=localhost,127.0.0.1
+
+# Сборка с proxy
+./scripts/docker/build.sh v1.0.0
+```
+
 ### Общие проблемы
 
 **Проблема**: Контейнер не запускается
