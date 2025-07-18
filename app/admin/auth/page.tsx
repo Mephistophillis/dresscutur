@@ -25,7 +25,7 @@ export default function AuthPage() {
       } else {
         setError(result.message || 'Ошибка входа. Пожалуйста, проверьте введенные данные.');
       }
-    } catch (err) {
+    } catch {
       setError('Ошибка входа. Пожалуйста, проверьте введенные данные.');
     } finally {
       setIsLoading(false);
