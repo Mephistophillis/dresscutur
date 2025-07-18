@@ -4,6 +4,10 @@ const nextConfig = {
     domains: ['images.unsplash.com'],
     formats: ['image/avif', 'image/webp'],
   },
+  output: 'standalone',
+  experimental: {
+    outputFileTracingRoot: __dirname,
+  },
 };
 
 export default nextConfig;
