@@ -56,14 +56,28 @@ export async function login(email: string, password: string, rememberMe: boolean
       data: { lastLogin: new Date() }
     });
     
-    // Устанавливаем cookie сессии
+    // Устанавливаем cookie сессии с улучшенными настройками
     const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7; // 30 дней если "Запомнить меня", иначе 7 дней
-    (await cookies()).set('admin-session', user.id, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax' as const,
       maxAge,
       path: '/',
+      // Добавляем domain только если есть HTTPS
+      ...(process.env.NODE_ENV === 'production' && process.env.DOMAIN 
+        ? { domain: process.env.DOMAIN } 
+        : {})
+    };
+
+    console.log('Setting cookie with options:', {
+      ...cookieOptions,
+      secure: cookieOptions.secure,
+      NODE_ENV: process.env.NODE_ENV,
+      hasHTTPS: !!process.env.HTTPS
     });
+
+    (await cookies()).set('admin-session', user.id, cookieOptions);
     
     return { success: true };
   } catch (error) {
@@ -82,9 +96,19 @@ export async function logout() {
 
 export async function getCurrentUser() {
   try {
-    const sessionToken = (await cookies()).get('admin-session')?.value;
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('admin-session')?.value;
+    
+    // Диагностика
+    console.log('getCurrentUser debug:', {
+      hasSessionToken: !!sessionToken,
+      sessionTokenLength: sessionToken?.length,
+      allCookies: cookieStore.getAll().map(c => c.name),
+      NODE_ENV: process.env.NODE_ENV
+    });
     
     if (!sessionToken) {
+      console.log('No session token found');
       return null;
     }
     
