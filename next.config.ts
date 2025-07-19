@@ -7,6 +7,9 @@ const nextConfig = {
   output: 'standalone',
   experimental: {
     outputFileTracingRoot: __dirname,
+    serverActions: {
+      bodySizeLimit: '10mb', // Увеличиваем лимит с 1MB до 10MB для загрузки изображений
+    },
   },
 };
 

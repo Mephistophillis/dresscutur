@@ -40,6 +40,14 @@ export default function ImageUpload({
   };
 
   const uploadFile = async (file: File) => {
+    console.log('=== ImageUpload: uploadFile started ===');
+    console.log('File details:', { 
+      name: file.name, 
+      size: file.size, 
+      type: file.type,
+      lastModified: file.lastModified
+    });
+    
     // Validate file size
     if (file.size > maxSizeBytes) {
       setError(`Размер файла превышает ${maxSizeMB}MB`);
@@ -53,28 +61,42 @@ export default function ImageUpload({
     }
 
     try {
+      console.log('Setting upload state to true...');
       setIsUploading(true);
       setError(null);
 
       // Create form data for upload
+      console.log('Creating FormData...');
       const formData = new FormData();
       formData.append('file', file);
       formData.append('category', category);
+      console.log('FormData created with category:', category);
 
       // Upload the image
+      console.log('Calling uploadImage server action...');
       const result = await uploadImage(formData);
+      console.log('Server action result:', result);
 
       if (result.success && result.url) {
+        console.log('Upload successful, setting image URL:', result.url);
         setImageUrl(result.url);
         onImageUpload(result.url);
       } else {
+        console.log('Upload failed:', result.error);
         setError(result.error || 'Ошибка при загрузке изображения');
       }
     } catch (err) {
+      console.error('=== ImageUpload ERROR ===');
       console.error('Ошибка при загрузке:', err);
+      console.error('Error details:', {
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined
+      });
       setError('Ошибка при загрузке изображения');
     } finally {
+      console.log('Setting upload state to false...');
       setIsUploading(false);
+      console.log('=== ImageUpload: uploadFile completed ===');
     }
   };
 

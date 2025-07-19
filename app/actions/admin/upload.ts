@@ -15,56 +15,83 @@ interface UploadResult {
  * Загружает изображение на сервер
  */
 export async function uploadImage(formData: FormData): Promise<UploadResult> {
+  console.log('=== uploadImage started ===');
   try {
     // Проверка авторизации
+    console.log('Checking authorization...');
     const user = await getCurrentUser();
+    console.log('User check result:', { hasUser: !!user, userId: user?.id });
     if (!user) {
       return { success: false, error: 'Не авторизован' };
     }
 
+    console.log('Getting file and category from formData...');
     const file = formData.get('file') as File;
     const category = formData.get('category') as string || 'general';
+    console.log('File info:', { 
+      hasFile: !!file, 
+      fileName: file?.name, 
+      fileSize: file?.size, 
+      fileType: file?.type,
+      category 
+    });
 
     if (!file) {
       return { success: false, error: 'Файл не найден' };
     }
 
     // Проверка типа файла
+    console.log('Validating file type...');
     if (!file.type.startsWith('image/')) {
       return { success: false, error: 'Файл должен быть изображением' };
     }
 
     // Получение расширения файла
+    console.log('Getting file extension...');
     const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    console.log('File extension:', fileExtension);
 
     if (!allowedExtensions.includes(fileExtension)) {
       return { success: false, error: 'Недопустимый формат файла' };
     }
 
     // Создание уникального имени файла
+    console.log('Creating unique filename...');
     const fileName = `${uuidv4()}.${fileExtension}`;
+    console.log('Generated filename:', fileName);
     
     // Создание директории, если она не существует
+    console.log('Creating upload directory...');
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', category);
+    console.log('Upload directory:', uploadDir);
     await fs.mkdir(uploadDir, { recursive: true });
 
     // Преобразование файла в буфер для сохранения
+    console.log('Converting file to buffer...');
     const buffer = Buffer.from(await file.arrayBuffer());
+    console.log('Buffer size:', buffer.length);
     
     // Сохранение файла
+    console.log('Saving file...');
     const filePath = path.join(uploadDir, fileName);
+    console.log('File path:', filePath);
     await fs.writeFile(filePath, buffer);
 
     // Возвращение URL-адреса файла относительно public
+    console.log('Creating file URL...');
     const fileUrl = `/uploads/${category}/${fileName}`;
+    console.log('File URL:', fileUrl);
+    console.log('=== uploadImage completed successfully ===');
 
     return {
       success: true,
       url: fileUrl
     };
   } catch (error) {
+    console.error('=== uploadImage ERROR ===');
     console.error('Ошибка при загрузке изображения:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : String(error));
     return {
       success: false,
       error: 'Не удалось загрузить изображение'

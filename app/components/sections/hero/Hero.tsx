@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export default function Hero() {
   return (
@@ -87,10 +88,14 @@ export default function Hero() {
                 transition={{ duration: 0.6, delay: 1.4 }}
               />
               <div className="relative z-10 bg-white rounded-lg shadow-xl overflow-hidden aspect-[4/3] w-full max-w-xl">
-                <img 
-                  src="/images/hero/atelier-main.jpg" 
-                  alt="Ателье DressCutur - рабочее пространство"
-                  className="w-full h-full object-cover"
+                <Image 
+                  src="/images/hero/fashion-design-studio-optimized.jpg" 
+                  alt="Ателье DressCutur - элегантная дизайн-студия премиум-класса"
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  quality={90}
                 />
               </div>
             </div>
