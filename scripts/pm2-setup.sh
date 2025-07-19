@@ -36,7 +36,7 @@ npm run build
 
 # Запуск PM2 с конфигурацией
 echo "🚀 Запуск PM2..."
-pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.js
 
 # Сохранение конфигурации PM2
 echo "💾 Сохранение конфигурации PM2..."

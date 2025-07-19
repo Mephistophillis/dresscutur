@@ -36,7 +36,7 @@ npm run build
 
 # Перезапуск PM2
 echo "🔄 Перезапуск PM2..."
-if pm2 list | grep -q "$APP_NAME-$NODE_ENV"; then
+if pm2 list | grep -q "$APP_NAME"; then
     pm2 reload ecosystem.config.js --env $NODE_ENV
 else
     pm2 start ecosystem.config.js --env $NODE_ENV

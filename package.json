@@ -16,8 +16,6 @@
     "pm2:setup": "bash scripts/pm2-setup.sh",
     "pm2:quick": "bash scripts/pm2-quick-start.sh",
     "pm2:start": "pm2 start ecosystem.config.js --env production",
-    "pm2:start:staging": "pm2 start ecosystem.config.js --env staging",
-    "pm2:start:dev": "pm2 start ecosystem.config.js --env development",
     "pm2:stop": "pm2 stop ecosystem.config.js",
     "pm2:restart": "pm2 restart ecosystem.config.js",
     "pm2:reload": "pm2 reload ecosystem.config.js",
@@ -27,8 +25,7 @@
     "pm2:status": "pm2 status",
     "pm2:save": "pm2 save",
     "pm2:logs:manage": "bash scripts/pm2-logs.sh",
-    "deploy": "bash scripts/pm2-deploy.sh",
-    "deploy:staging": "NODE_ENV=staging BRANCH=develop bash scripts/pm2-deploy.sh"
+    "deploy": "bash scripts/pm2-deploy.sh"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "dresscutur-prod",
+      "name": "dresscutur",
       "script": "npm",
       "args": "start",
       "cwd": "/home/meph/Projects/dresscutur",

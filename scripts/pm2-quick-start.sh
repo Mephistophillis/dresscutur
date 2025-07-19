@@ -36,7 +36,7 @@ fi
 
 # Запуск PM2
 echo "🚀 Запуск PM2..."
-pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.js
 
 # Показать статус
 echo "📊 Статус PM2:"
