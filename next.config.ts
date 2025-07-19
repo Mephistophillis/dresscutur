@@ -4,7 +4,7 @@ const nextConfig = {
     domains: ['images.unsplash.com'],
     formats: ['image/avif', 'image/webp'],
   },
-  output: 'standalone',
+  // Убираем output: 'standalone' чтобы Next.js сам обслуживал статические файлы
   experimental: {
     outputFileTracingRoot: __dirname,
     serverActions: {
